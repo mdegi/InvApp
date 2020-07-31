@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Vat Report" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isSummaryNewPage="true" uuid="e0b4bb68-cde4-4615-8947-acd839bfccad">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="245"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="repHeader" class="java.lang.String"/>
+	<parameter name="dateFrom" class="java.lang.String">
+		<defaultValueExpression><![CDATA["2016-12-31"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="dateTo" class="java.lang.String">
+		<defaultValueExpression><![CDATA["2016-01-01"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="dateFromSQL" class="java.lang.String"/>
+	<parameter name="dateToSQL" class="java.lang.String"/>
+	<parameter name="usrGrpFilter" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+    vin,
+    DATE_FORMAT(dateOfPurchase, '%d/%m/%Y') AS 'Purchase Date', 
+    DATE_FORMAT(soldDate, '%d/%m/%Y') AS 'Sale Date', 
+    sellingExVat,
+    vatOnSale,
+    valuePurchExVat,
+    (vatOnPurchase + localChargesVat) AS 'vatOnPurchase'
+FROM 
+    v_vehicleCost
+WHERE
+    $P!{usrGrpFilter}
+    ((v_vehicleCost.arrivalDate >= $P{dateFromSQL})
+        OR (v_vehicleCost.soldDate<= $P{dateToSQL}))
+    AND ((v_vehicleCost.arrivalDate <= $P{dateToSQL})
+        OR (v_vehicleCost.soldDate >= $P{dateFromSQL}))]]>
+	</queryString>
+	<field name="vin" class="java.lang.String"/>
+	<field name="Purchase Date" class="java.lang.String"/>
+	<field name="Sale Date" class="java.lang.String"/>
+	<field name="sellingExVat" class="java.math.BigDecimal"/>
+	<field name="vatOnSale" class="java.math.BigDecimal"/>
+	<field name="valuePurchExVat" class="java.math.BigDecimal"/>
+	<field name="vatOnPurchase" class="java.math.BigDecimal"/>
+	<variable name="totPurVat" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{vatOnPurchase}]]></variableExpression>
+	</variable>
+	<variable name="totSalVat" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{vatOnSale}]]></variableExpression>
+	</variable>
+	<variable name="totPurchases" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{valuePurchExVat}]]></variableExpression>
+	</variable>
+	<variable name="totSales" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{sellingExVat}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="1" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="83" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="15f156a1-6cf2-407e-9f87-78b66f66f994" x="0" y="30" width="555" height="28"/>
+				<textElement textAlignment="Center">
+					<font size="20"/>
+				</textElement>
+				<text><![CDATA[VAT Report]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="574b8e03-fede-46ac-ad7d-cc652755f344" x="0" y="0" width="301" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{repHeader}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="54f76ee3-f344-42e9-a89c-510801a2bca8" x="0" y="58" width="555" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA["[" + $P{dateFrom} + " - " + $P{dateTo} + "]"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="37" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="b5aa500c-e365-402c-a8a1-8b0cad435d76" x="149" y="10" width="112" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Vin]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="a8644990-9e82-4bfb-9813-f697c838d9b2" x="71" y="10" width="78" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Sale Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="8891a1b0-ef09-407d-93a8-0d1caad208d4" x="0" y="10" width="71" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Purchase Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="ea182a93-2deb-4753-8c0c-739c56a5910d" x="431" y="10" width="50" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<text><![CDATA[Pur Vat]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="44fb0bd6-b6fd-4c4a-8057-ff4b5933bddd" x="311" y="10" width="50" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<text><![CDATA[Sale Vat]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="3aeb29bc-e3f1-429c-a49a-9692046fea4b" x="0" y="6" width="555" height="1"/>
+			</line>
+			<line>
+				<reportElement uuid="3aeb29bc-e3f1-429c-a49a-9692046fea4b" x="0" y="33" width="555" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="44fb0bd6-b6fd-4c4a-8057-ff4b5933bddd" x="261" y="10" width="50" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<text><![CDATA[Sale Price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="45db42f9-78be-40ab-bd96-b95fb5f40598" x="375" y="10" width="56" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<text><![CDATA[Pur Price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="ef61eb54-ac32-4a53-838d-1c42b8e6fa88" x="493" y="10" width="50" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<text><![CDATA[VAT Due]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="22" splitType="Stretch">
+			<textField>
+				<reportElement uuid="5caf36e0-b5e6-4ca3-ab4c-ecd0337602fe" x="149" y="0" width="112" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{vin}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="4935a430-a9fe-433a-9fbf-d062349c3f46" x="71" y="0" width="78" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{Sale Date}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="bdc1a53c-f9e5-4d3c-a57b-2de23dae269c" x="0" y="0" width="71" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{Purchase Date}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="c058c979-3d96-459b-841c-b2bbf3f3a3e7" x="311" y="0" width="50" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{vatOnSale}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="ae40fbe3-84d3-4e13-ab67-98ca78a542dd" x="431" y="0" width="50" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{vatOnPurchase}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="b1eb3467-4225-4641-baac-eadd13cc60fe" x="261" y="0" width="50" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{sellingExVat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="e09cefb7-7ded-47bf-a8df-2e90a8143532" x="381" y="0" width="50" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{valuePurchExVat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="c931d7b2-9352-4b09-927c-294bc9fbc13b" x="493" y="0" width="50" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{vatOnSale}.doubleValue() - $F{vatOnPurchase}.doubleValue()]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<lastPageFooter>
+		<band height="32">
+			<line>
+				<reportElement uuid="bd4f2368-6bcb-4cd6-922f-d8030d7b74c2" x="0" y="0" width="555" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement uuid="bd4f2368-6bcb-4cd6-922f-d8030d7b74c2" x="0" y="30" width="555" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement uuid="6c30e401-715a-499e-8efd-f88752e620c3" x="117" y="5" width="100" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[Totals Eur:]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="54a02827-a38b-4724-9790-873c80090c7d" x="311" y="5" width="50" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{totSalVat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="e32b578b-6ae4-4279-a2f5-0b0da69d5f79" x="481" y="5" width="62" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{totSalVat}.doubleValue() - $V{totPurVat}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="21371214-d6f9-4e61-a226-f4f437438b73" x="431" y="5" width="50" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{totPurVat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement uuid="038752a5-4e94-4045-b4e2-909126e0efec" x="361" y="5" width="70" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{totPurchases}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="c94f5508-ac9c-4f62-ac8f-c868d3241c7d" x="229" y="5" width="82" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{totSales}]]></textFieldExpression>
+			</textField>
+		</band>
+	</lastPageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

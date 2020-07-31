@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Profit Report" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="16c4059b-46df-4578-afdd-b4c1dbaa1f92">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="repHeader" class="java.lang.String"/>
+	<parameter name="dateFrom" class="java.lang.String">
+		<defaultValueExpression><![CDATA["2016-12-31"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="dateTo" class="java.lang.String">
+		<defaultValueExpression><![CDATA["2016-01-01"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="dateFromSQL" class="java.lang.String"/>
+	<parameter name="dateToSQL" class="java.lang.String"/>
+	<parameter name="userGrpFilter" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+    v_vehicleCost.vin, makeDesc, modelDsc, versionDsc,
+    DATE_FORMAT(v_vehicleCost.dateOfPurchase, '%d/%m/%Y') AS 'Purchase Date', 
+    DATE_FORMAT(v_vehicleCost.soldDate, '%d/%m/%Y') AS 'Sale Date', 
+    v_vehicleCost.dutyPaid, v_vehicleCost.vatOnPurchase, 
+    v_vehicleCost.costAtPort, v_vehicleCost.markUp, 
+    v_vehicleCost.vatOnSale,
+    v_vehicleCost.otherCharges,
+    v_vehicleCost.totExpenses,
+    v_vehicleCost.accountsVal,
+    v_vehicleCost.localChargesVat,
+    vehicle.regTax,
+    v_vehicleCost.actualSelling,
+    (v_vehicleCost.costAtPort + v_vehicleCost.regTax + 
+	v_vehicleCost.totExpenses + v_vehicleCost.accountsVal + 
+	v_vehicleCost.otherCharges + v_vehicleCost.vatOnPurchase + 
+	v_vehicleCost.localChargesVat) AS 'totCost'
+FROM
+    v_vehicleCost, vehicle, make, model, version
+WHERE 
+    v_vehicleCost.sold = 1
+    AND v_vehicleCost.vin = vehicle.vin
+    AND vehicle.makeID = make.id
+    AND vehicle.modelID = model.id
+    AND vehicle.versionID = version.id
+    $P!{userGrpFilter}
+    AND ((vehicle.dateOfPurchase >= $P{dateFromSQL})
+        OR (vehicle.soldDate<= $P{dateToSQL}))
+    AND ((vehicle.dateOfPurchase <= $P{dateToSQL})
+        OR (vehicle.soldDate >= $P{dateFromSQL}))]]>
+	</queryString>
+	<field name="vin" class="java.lang.String"/>
+	<field name="makeDesc" class="java.lang.String"/>
+	<field name="modelDsc" class="java.lang.String"/>
+	<field name="versionDsc" class="java.lang.String"/>
+	<field name="Purchase Date" class="java.lang.String"/>
+	<field name="Sale Date" class="java.lang.String"/>
+	<field name="dutyPaid" class="java.math.BigDecimal"/>
+	<field name="vatOnPurchase" class="java.math.BigDecimal"/>
+	<field name="costAtPort" class="java.math.BigDecimal"/>
+	<field name="markUp" class="java.math.BigDecimal"/>
+	<field name="vatOnSale" class="java.math.BigDecimal"/>
+	<field name="otherCharges" class="java.math.BigDecimal"/>
+	<field name="totExpenses" class="java.math.BigDecimal"/>
+	<field name="accountsVal" class="java.math.BigDecimal"/>
+	<field name="localChargesVat" class="java.math.BigDecimal"/>
+	<field name="regTax" class="java.math.BigDecimal"/>
+	<field name="actualSelling" class="java.math.BigDecimal"/>
+	<field name="totCost" class="java.math.BigDecimal"/>
+	<variable name="totSelling" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{actualSelling}]]></variableExpression>
+	</variable>
+	<variable name="totCost" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{costAtPort}.doubleValue() + 
+    $F{otherCharges}.doubleValue() +
+    $F{totExpenses}.doubleValue() +
+    $F{regTax}.doubleValue()]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="89" splitType="Stretch">
+			<textField>
+				<reportElement uuid="574b8e03-fede-46ac-ad7d-cc652755f344" x="0" y="0" width="301" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{repHeader}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="15f156a1-6cf2-407e-9f87-78b66f66f994" x="0" y="35" width="555" height="28"/>
+				<textElement textAlignment="Center">
+					<font size="20"/>
+				</textElement>
+				<text><![CDATA[Profit Report]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="54f76ee3-f344-42e9-a89c-510801a2bca8" x="0" y="63" width="555" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA["[" + $P{dateFrom} + " - " + $P{dateTo} + "]"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="69e6692e-bffd-4cd7-ad4e-acb12b9c0bee" x="317" y="55" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{userGrpFilter}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="29" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="711231ba-9d7c-463d-8c6c-fc820a9c5551" x="0" y="5" width="71" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Purchase Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="a810289c-1c36-4f89-b4b9-d644d90fd0ca" x="71" y="5" width="70" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Make]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="52a9fa6c-c308-4129-820e-0c4f225e677c" x="141" y="5" width="58" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Model]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b06c5ebd-a34f-4bff-9e6c-85b4e28ac2c4" x="199" y="5" width="45" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Version]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="5a31d427-3925-4963-9bac-31e5af919ba8" x="244" y="5" width="111" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[vin]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="619dbbcc-61d2-4018-8729-e794bb904d3e" x="404" y="5" width="49" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<text><![CDATA[Tot Cost]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="8aae6baf-3a5e-4362-bfe3-907040af28de" x="0" y="2" width="555" height="1"/>
+			</line>
+			<line>
+				<reportElement uuid="8aae6baf-3a5e-4362-bfe3-907040af28de" x="0" y="27" width="555" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="d1b1855b-3554-499c-ac0a-8edde0a1428a" x="453" y="5" width="49" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<text><![CDATA[Profit]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="d1b1855b-3554-499c-ac0a-8edde0a1428a" x="355" y="5" width="49" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<text><![CDATA[Selling]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="2bf72be6-698c-47fb-965e-a402367473e1" x="502" y="5" width="53" height="20"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[%]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement uuid="a0d8ae22-039a-4c11-adf8-37d5b93dc8d8" x="0" y="0" width="71" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{Purchase Date}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="7c554f9d-b22e-4309-a9c5-15ac5903a086" x="71" y="0" width="70" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{makeDesc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="3f2c1fea-2cca-43ae-b133-0f3aca37e98f" x="141" y="0" width="58" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{modelDsc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="6a7728b3-9b4e-49e0-85a8-cade782734f8" x="244" y="0" width="111" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{vin}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="b7887906-d4a6-41cc-b7af-f05e383d4b01" x="199" y="0" width="45" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{versionDsc}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="51267d05-cd9c-42b9-acf3-56af44b018a8" x="355" y="0" width="49" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{actualSelling}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="f18abbce-64c4-423a-ae69-e178e6e503e3" x="453" y="0" width="49" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{actualSelling}.doubleValue() -
+    $F{totCost}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="099ea7ff-f24c-4747-891e-7ee7ff571888" x="404" y="0" width="49" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{totCost}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00%;-#,##0.00%" isBlankWhenNull="true">
+				<reportElement uuid="e8020c66-1b48-4a2e-b238-75e2654236d6" x="502" y="0" width="53" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[(($F{actualSelling}.doubleValue() -
+    ($F{totCost}.doubleValue()
+    )) * 100) /
+($F{totCost}.doubleValue() 
+    ) / 100]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="6c30e401-715a-499e-8efd-f88752e620c3" x="255" y="4" width="100" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="10" isBold="true" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[Totals Eur:]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="eff0bbe9-82be-4eb1-bcbe-55e6ca1931c6" x="355" y="4" width="49" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="10" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{totSelling}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="a7738f81-de42-47d9-8e13-a8deea5d312c" x="404" y="4" width="49" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="10" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{totCost}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement uuid="388d802f-e000-4780-8f0b-0272ed9baf56" x="455" y="4" width="47" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="10" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{totSelling} - $V{totCost}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00%;-#,##0.00%" isBlankWhenNull="true">
+				<reportElement uuid="64041fbb-a612-43ff-86fc-69b2d7f8b760" x="502" y="4" width="53" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[((($V{totSelling} - $V{totCost})* 100) / $V{totCost}) / 100]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="bd4f2368-6bcb-4cd6-922f-d8030d7b74c2" x="0" y="1" width="555" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement uuid="bd4f2368-6bcb-4cd6-922f-d8030d7b74c2" x="0" y="26" width="555" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>
