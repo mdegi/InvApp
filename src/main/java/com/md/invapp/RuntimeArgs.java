@@ -4,6 +4,7 @@
  */
 package com.md.invapp;
 
+import com.md.invapp.data.entities.InvAppUserEntity;
 import com.md.invapp.enums.PropsFields;
 
 import java.io.FileOutputStream;
@@ -30,7 +31,7 @@ public class RuntimeArgs {
     private String backupDrive;
         
     private InvAppConfig invAppConfig;
-    private InvAppUserRec userRec;
+    private InvAppUserEntity userRec;
     private InvAppDBConn invAppDbConn;
                     
     private int openFrameCount;

@@ -4,15 +4,20 @@
  */
 package com.md.invapp;
 
+import com.md.invapp.data.entities.InvAppUserEntity;
+import com.md.invapp.data.HibernateUtil;
+import com.md.invapp.data.dao.InvAppUserDao;
 import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.Properties;
 import javax.swing.JOptionPane;
+import org.hibernate.Session;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import stdClasses.StdFun;
 
@@ -191,17 +196,12 @@ public class InvApp extends javax.swing.JFrame {
             try {
                 iaDBConn = new InvAppDBConn(dbServer, dbPort, dbPwd);
                 runTimeArgs.setInvAppDbConn(iaDBConn);
-            
-                if (userRec == null) {
-                    userRec = new InvAppUserRec();
-                    userAO = new InvAppUserAO(runTimeArgs.getDbConn(), userRec);
-                }
-                userAO.fillRecord(jTextField1.getText());
-                runTimeArgs.setUserRec(userRec);
-  
-                if (userRec.getId() != InvAppUserRec.CANCELLED_RECORD) {
+                userRec = userDao.getUser(jTextField1.getText());
+                
+                if (userRec.getId() != InvAppUserEntity.CANCELLED_RECORD) {
                     if (new String(jPasswordField1.getPassword()).equals(userRec.getUserPass())) {  
                         dispose();
+                        runTimeArgs.setUserRec(userRec);
                         InvAppMain invAppMain = new InvAppMain(runTimeArgs);                    
                     } else {
                         JOptionPane.showMessageDialog(null,
@@ -245,9 +245,7 @@ public class InvApp extends javax.swing.JFrame {
                     "Invalid user entered\nExiting system",
                     StdFun.SYSTEM_TITLE,JOptionPane.ERROR_MESSAGE) ;
                 System.exit(0);
-
-            }
-            
+            }            
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -259,7 +257,6 @@ public class InvApp extends javax.swing.JFrame {
         }; 
 
         try {
-
             String[] com = commands[0];
             Process process = Runtime.getRuntime().exec(com);
             process.getOutputStream().close();
@@ -331,7 +328,6 @@ public class InvApp extends javax.swing.JFrame {
                             case 5:
                                 emlPwd = tmpStr;
                                 break;
-
                          }
                     } 
                 }
@@ -358,6 +354,11 @@ public class InvApp extends javax.swing.JFrame {
     private void initAppConfig() {
         runTimeArgs = new RuntimeArgs();
         
+        URL res = getClass().getClassLoader().getResource("abc.txt");
+        
+        session = HibernateUtil.getSessionFactory().openSession();
+        userDao = new InvAppUserDao(session);
+                
         if (ctx == null) {
             ctx = new AnnotationConfigApplicationContext();
             ctx.register(AppConfig.class);
@@ -404,10 +405,7 @@ public class InvApp extends javax.swing.JFrame {
             new InvApp().setVisible(true);
         });
     }
-    
-    private InvAppUserRec userRec;
-    private InvAppUserAO userAO;
-            
+                
     private static final String appIn = "inp";
     private static final String chkFe = "ini";
     private static final String chkFl = "windows";
@@ -421,8 +419,12 @@ public class InvApp extends javax.swing.JFrame {
     
     private Properties props ;
 
-    private static String arg;    
+    private static String arg;        
+
+    private InvAppUserEntity userRec;
+    private InvAppUserDao userDao;
     
+    private Session session;
     private RuntimeArgs runTimeArgs;
     private AnnotationConfigApplicationContext ctx;    
     private InvAppConfig invAppConfig;
