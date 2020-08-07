@@ -26,15 +26,17 @@
         <dropbox.core.version>3.1.4</dropbox.core.version>
         <de.idyl.version>1.0.1</de.idyl.version>
         
+        <swing.version>1.0.3</swing.version>
+        
         <sprint-context-version>5.2.6.RELEASE</sprint-context-version>
         <lombok-version>1.18.12</lombok-version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>unknown.binary</groupId>
-            <artifactId>swing-layout-1.0.4</artifactId>
-            <version>SNAPSHOT</version>
+            <groupId>org.swinglabs</groupId>
+            <artifactId>swing-layout</artifactId>
+            <version>${swing.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jasperreports</groupId>

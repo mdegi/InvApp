@@ -4,10 +4,10 @@
  */
 package com.md.invapp;
 
+import com.md.invapp.data.HibernateUtil;
+import com.md.invapp.data.dao.ItemCategoryDao;
+import com.md.invapp.data.entities.ItemCategoryEntity;
 import java.awt.Dimension;
-import java.sql.SQLException;
-import javax.swing.JOptionPane;
-import stdClasses.StdFun;
 
 /**
  *
@@ -15,31 +15,18 @@ import stdClasses.StdFun;
  */
 public class ItemCategoryInternalFrame extends MaintenanceTableInternalFrame {
 
-    private ItemCategoryAO itemCategoryAO;
-    private ItemCategoryRecord itemCategoryRec;
+    private ItemCategoryDao itemCategoryDao;
+    private ItemCategoryEntity itemCategoryRec;
     
-    private final RuntimeArgs daArgs;
-
-    public ItemCategoryInternalFrame(Dimension dimension, RuntimeArgs daArgs) {
-        
+    public ItemCategoryInternalFrame(Dimension dimension, RuntimeArgs daArgs) {        
         super("Maintain Item Categories", daArgs);
-        this.daArgs = daArgs;
         initVars(dimension);
-        
     }
     
     private void initVars(Dimension dimension) {        
-        itemCategoryRec = new ItemCategoryRecord();
-        
-        try {
-            itemCategoryAO = new ItemCategoryAO(daArgs.getDbConn(), itemCategoryRec);
-            
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
-                "SQLException: itemCategory table\n" + e.getMessage(),StdFun.SYSTEM_TITLE ,JOptionPane.ERROR_MESSAGE) ;
-        }                
-        
-        super.initVarsAndDisplay(itemCategoryRec, itemCategoryAO, dimension);
+        itemCategoryRec = new ItemCategoryEntity();        
+        itemCategoryDao = new ItemCategoryDao(HibernateUtil.getSessionFactory());        
+        super.initVarsAndDisplay(itemCategoryRec, itemCategoryDao, dimension);
     }
         
 }

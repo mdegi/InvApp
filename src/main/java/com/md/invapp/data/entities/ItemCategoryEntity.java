@@ -4,6 +4,7 @@
  */
 package com.md.invapp.data.entities;
 
+import com.md.invapp.MaintenanceTableRecord;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,33 +27,18 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-//@org.hibernate.annotations.Entity(optimisticLock = OptimisticLockType.ALL)
-@Table(name = "invappuser", uniqueConstraints = {
+@Table(name = "itemCategory", uniqueConstraints = {
         @UniqueConstraint(columnNames = "ID")        
 })
-public class InvAppUserEntity implements Serializable {
-    
-    private static final long serialVersionUID = -1798070786993154676L;
-     
+public class ItemCategoryEntity extends MaintenanceTableRecord implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", unique = true, nullable = false)
     private int id;
     
-    @Column(name = "userCode", unique = true, nullable = false, length = 10)
-    private String userCode;
-    
-    @Column(name = "userPass", unique = false, nullable = false, length = 25)
-    private String userPass;
-            
-    @Column(name = "userGrp", columnDefinition = "enum('ADMIN','GRP1','GRP2')", nullable = false)
-    private String userGrp;
+    @Column(name = "description", unique = true, nullable = false, length = 60)
+    private String description;
 
-    @Column(name = "readOnly", unique = false, nullable = false)
-    private boolean readOnly;
     
-    public final static int NEW_RECORD = 0;
-    
-    public final static int CANCELLED_RECORD = -1;
-                    
 }

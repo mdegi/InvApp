@@ -6,7 +6,8 @@
 
 package com.md.invapp;
 
-import com.md.invapp.enums.PropsFields;
+import com.md.invapp.data.entities.ItemCategoryEntity;
+import com.md.invapp.data.entities.ItemGroupEntity;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public class ItemsExtendedPanel extends InvAppMaintPanel {
      * @param itemGroupsList
      * @param runTimeArgs */
     public ItemsExtendedPanel(ItemRecord itemRecord,
-            ArrayList<ItemCategoryRecord> itemCategoriesList, ArrayList<ItemGroupRecord> itemGroupsList, RuntimeArgs runTimeArgs) {
+            ArrayList<ItemCategoryEntity> itemCategoriesList, ArrayList<ItemGroupEntity> itemGroupsList, RuntimeArgs runTimeArgs) {
         this.itemRecord = itemRecord;
         this.runTimeArgs = runTimeArgs;
         initComponents();
@@ -32,21 +33,21 @@ public class ItemsExtendedPanel extends InvAppMaintPanel {
         initGroup(itemGroupsList);
     }
     
-    private void initCategory(ArrayList<ItemCategoryRecord> itemCategoriesList) {        
+    private void initCategory(ArrayList<ItemCategoryEntity> itemCategoriesList) {        
         
         categoryCombo.removeAllItems();
         categoryCombo.addItem("Select category ...");
         itemCategoriesList.forEach((catRec) -> {            
-            categoryCombo.addItem(catRec.getDsc());
+            categoryCombo.addItem(catRec.getDescription());
         });    
     }
 
-    private void initGroup(ArrayList<ItemGroupRecord> itemGroupsList) {        
+    private void initGroup(ArrayList<ItemGroupEntity> itemGroupsList) {        
         
         groupCombo.removeAllItems();
         groupCombo.addItem("Select group ...");
         itemGroupsList.forEach((grpRec) -> {            
-            groupCombo.addItem(grpRec.getDsc());
+            groupCombo.addItem(grpRec.getDescription());
         });    
     }
     

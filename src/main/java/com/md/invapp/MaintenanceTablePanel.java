@@ -5,8 +5,7 @@
 package com.md.invapp;
 
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -39,7 +38,7 @@ public class MaintenanceTablePanel extends InvAppMaintPanel {
             maintenanceTavleRecord.setId(mntTableRecords.get(jComboBox1.getSelectedIndex() - 1).getId());
         }
 
-        maintenanceTavleRecord.setDsc(jTextField1.getText());
+        maintenanceTavleRecord.setDescription(jTextField1.getText());
     } 
     
     @Override
@@ -51,16 +50,13 @@ public class MaintenanceTablePanel extends InvAppMaintPanel {
         jComboBox1.addActionListener(listener);
     }
 
-    public void initListItems(ArrayList<MaintenanceTableRecord> list) {
-    
+    public void initListItems(List<MaintenanceTableRecord> list) {
         this.mntTableRecords = list;
-        
         jComboBox1.removeAllItems();
-        
-        jComboBox1.addItem("Select");
-        for (Iterator<MaintenanceTableRecord> iter = list.iterator(); iter.hasNext();) {
-            jComboBox1.addItem(iter.next().getDsc());
-        }
+        jComboBox1.addItem("Selet");
+        list.forEach((tableRecord) -> {
+            jComboBox1.addItem(tableRecord.getDescription());
+        });
     }
 
     /**
@@ -148,9 +144,9 @@ public class MaintenanceTablePanel extends InvAppMaintPanel {
         
             MaintenanceTableRecord mkRec =  mntTableRecords.get(jComboBox1.getSelectedIndex() - 1);
             maintenanceTavleRecord.setId(mkRec.getId());
-            maintenanceTavleRecord.setDsc(mkRec.getDsc());
+            maintenanceTavleRecord.setDescription(mkRec.getDescription());
                                                 
-            jTextField1.setText(maintenanceTavleRecord.getDsc());                                    
+            jTextField1.setText(maintenanceTavleRecord.getDescription());                                    
             repaint();
 
             jTextField1.requestFocus();
@@ -164,7 +160,7 @@ public class MaintenanceTablePanel extends InvAppMaintPanel {
         return jComboBox1.getSelectedIndex();
     }
       
-    private ArrayList<MaintenanceTableRecord> mntTableRecords;
+    private List<MaintenanceTableRecord> mntTableRecords;
     
     private final MaintenanceTableRecord maintenanceTavleRecord;    
 

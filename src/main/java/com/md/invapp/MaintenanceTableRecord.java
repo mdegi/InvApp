@@ -21,7 +21,7 @@ public class MaintenanceTableRecord {
     protected void initVars() {
         
         setId(CANCELLED_RECORD);
-        setDsc(null);
+        setDescription(null);
     }
     
     /**
@@ -41,14 +41,14 @@ public class MaintenanceTableRecord {
     /**
      * @return the dsc
      */
-    public String getDsc() {
+    public String getDescription() {
         return dsc;
     }
 
     /**
      * @param dsc the dsc to set
      */
-    public void setDsc(String dsc) {
+    public void setDescription(String dsc) {
         this.dsc = dsc;
     }
 

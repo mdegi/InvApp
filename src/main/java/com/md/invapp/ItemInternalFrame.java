@@ -7,6 +7,11 @@
 
 package com.md.invapp;
 
+import com.md.invapp.data.HibernateUtil;
+import com.md.invapp.data.dao.ItemCategoryDao;
+import com.md.invapp.data.dao.ItemGroupDao;
+import com.md.invapp.data.entities.ItemCategoryEntity;
+import com.md.invapp.data.entities.ItemGroupEntity;
 import java.util.Vector;
 
 import java.awt.Dimension;
@@ -14,6 +19,7 @@ import java.awt.Dimension;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
@@ -36,11 +42,11 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
     private ItemAO itemAO = null;
     private ItemRecord itemRecord;
     
-    private ItemCategoryRecord itemCategoryRecord;
-    private ItemCategoryAO itemCategoryAO;
+    private ItemCategoryEntity itemCategoryRecord;
+    private ItemCategoryDao itemCategoryDao;
     
-    private ItemGroupRecord itemGroupRegord;
-    private ItemGroupAO itemGroupAO;
+    private ItemGroupEntity itemGroupRecord;
+    private ItemGroupDao itemGroupDao;
     
     private final RuntimeArgs runTimeArgs;
 
@@ -82,13 +88,14 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
         combosValues = new HashMap<>();
         
         itemRecord = new ItemRecord();
-        itemCategoryRecord = new ItemCategoryRecord();
-        itemGroupRegord = new ItemGroupRecord();
+        itemCategoryRecord = new ItemCategoryEntity();
+        itemGroupRecord = new ItemGroupEntity();
+        
+        itemCategoryDao = new ItemCategoryDao(HibernateUtil.getSessionFactory());           
+        itemGroupDao = new ItemGroupDao(HibernateUtil.getSessionFactory());           
         
         try {
-            itemAO = new ItemAO(runTimeArgs.getDbConn(), itemRecord);
-            itemCategoryAO = new ItemCategoryAO(runTimeArgs.getDbConn(), itemCategoryRecord);
-            itemGroupAO = new ItemGroupAO(runTimeArgs.getDbConn(), itemGroupRegord);            
+            itemAO = new ItemAO(runTimeArgs.getDbConn(), itemRecord);            
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
                 "Error initialising Access Object:\n" + e.getMessage(),
@@ -100,13 +107,20 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
         
         Vector<Vector> listDet = null;
         
-        ArrayList<ItemCategoryRecord> categoriesList = null;
-        ArrayList<ItemGroupRecord> groupsList = null;
+        ArrayList<ItemCategoryEntity> categoriesList = null;
+        ArrayList<ItemGroupEntity> groupsList = null;
 
         try {
-            categoriesList = itemCategoryAO.getAllRecords();
-            groupsList = itemGroupAO.getAllRecords();
-            
+            categoriesList = itemCategoryDao.getAllRecords()
+                    .stream()
+                    .map(cat -> (ItemCategoryEntity)cat)
+                    .collect(Collectors.toCollection(ArrayList::new));
+
+            groupsList = itemGroupDao.getAllRecords()
+                    .stream()
+                    .map(grp -> (ItemGroupEntity)grp)
+                    .collect(Collectors.toCollection(ArrayList::new));
+
             listDet = InvAppDBConn.getScanEntries(itemAO.fillListSQL(), runTimeArgs.getDbConn());
             
         } catch (SQLException e) {
@@ -272,15 +286,11 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
         
         boolean validEnt = true;
         if (validEnt) {
-            try {
-                itemCategoryAO.fillRecord((String)itemPanel.getSelectedItem(ItemPanel.CATEGORY_COMBO));
-                itemGroupAO.fillRecord((String)itemPanel.getSelectedItem(ItemPanel.GROUP_COMBO));
-                
-                itemRecord.setCategoryId(itemCategoryRecord.getId());
-                itemRecord.setGroupId(itemGroupRegord.getId());
-            } catch (SQLException e) {
-                errorList.append("SQLException retrieving foreign key selections\n");
-            }            
+            itemCategoryRecord = itemCategoryDao.getCategory((String)itemPanel.getSelectedItem(ItemPanel.CATEGORY_COMBO));
+            itemGroupRecord = itemGroupDao.getGroup((String)itemPanel.getSelectedItem(ItemPanel.GROUP_COMBO));
+
+            itemRecord.setCategoryId(itemCategoryRecord.getId());
+            itemRecord.setGroupId(itemGroupRecord.getId());
         }
 
         //check if required fields have been entered correctlyhere
@@ -303,12 +313,12 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
         try {
             itemAO.fillRecord(itemCode);
             
-            itemCategoryAO.fillRecord(itemRecord.getCategoryId());
-            itemGroupAO.fillRecord(itemRecord.getGroupId());
+            itemCategoryRecord = itemCategoryDao.getCategory(itemRecord.getCategoryId());
+            itemGroupRecord = itemGroupDao.getGroup(itemRecord.getGroupId());
             combosValues.clear();
             
-            combosValues.put(ItemPanel.CATEGORY_COMBO, itemCategoryRecord.getDsc());
-            combosValues.put(ItemPanel.GROUP_COMBO, itemGroupRegord.getDsc());
+            combosValues.put(ItemPanel.CATEGORY_COMBO, itemCategoryRecord.getDescription());
+            combosValues.put(ItemPanel.GROUP_COMBO, itemGroupRecord.getDescription());
             
             itemPanel.fillPanel(combosValues);
         } catch (SQLException e) {
@@ -349,14 +359,14 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
     private void processPopulateRec() {
 
         try {
-            itemAO.fillRecord(itemPanel.getSelectedItem(ItemPanel.ITEM_TABLE));
-            itemCategoryAO.fillRecord(itemRecord.getCategoryId());
-            itemGroupAO.fillRecord(itemRecord.getGroupId());
+            itemAO.fillRecord(itemPanel.getSelectedItem(ItemPanel.ITEM_TABLE));            
+            itemCategoryRecord = itemCategoryDao.getCategory(itemRecord.getCategoryId());
+            itemGroupRecord = itemGroupDao.getGroup(itemRecord.getGroupId());
             
             combosValues.clear();
 
-            combosValues.put(ItemPanel.CATEGORY_COMBO, itemCategoryRecord.getDsc());
-            combosValues.put(ItemPanel.GROUP_COMBO, itemGroupRegord.getDsc());
+            combosValues.put(ItemPanel.CATEGORY_COMBO, itemCategoryRecord.getDescription());
+            combosValues.put(ItemPanel.GROUP_COMBO, itemGroupRecord.getDescription());
 
 
             itemPanel.fillPanel(combosValues);

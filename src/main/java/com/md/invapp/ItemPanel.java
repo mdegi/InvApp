@@ -6,6 +6,8 @@
 
 package com.md.invapp;
 
+import com.md.invapp.data.entities.ItemCategoryEntity;
+import com.md.invapp.data.entities.ItemGroupEntity;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ public class ItemPanel extends InvAppMaintPanel {
      */
 
     public ItemPanel(ItemRecord itemRecord, Vector<Vector> listDet, 
-            ArrayList<ItemCategoryRecord> itemCategoriesList, ArrayList<ItemGroupRecord> itemGroupsList, RuntimeArgs runTimeArgs) {
+            ArrayList<ItemCategoryEntity> itemCategoriesList, ArrayList<ItemGroupEntity> itemGroupsList, RuntimeArgs runTimeArgs) {
 
         initComponents();
         

@@ -4,12 +4,10 @@
  */
 package com.md.invapp;
 
+import com.md.invapp.data.dao.MaintenanceTableDao;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.sql.SQLException;
-import javax.swing.JOptionPane;
 import stdClasses.ActionToolBar;
-import stdClasses.StdFun;
 
 /**
  *
@@ -19,7 +17,7 @@ public class MaintenanceTableInternalFrame extends InvAppMaintFrame{
 
     private MaintenanceTablePanel mntTablePanel;
     
-    private MaintenanceTableAO maintTableAO;
+    private MaintenanceTableDao maintTableDao;
     private MaintenanceTableRecord maintTableRec;
     
     
@@ -27,11 +25,10 @@ public class MaintenanceTableInternalFrame extends InvAppMaintFrame{
         super(title, false, true, 
              false, false, daArgs);
     }
-    
-    
-    protected void initVarsAndDisplay(MaintenanceTableRecord mntTableRec, MaintenanceTableAO mntTableAO, Dimension dimension) {
+        
+    protected void initVarsAndDisplay(MaintenanceTableRecord mntTableRec, MaintenanceTableDao mntTablDao, Dimension dimension) {
         this.maintTableRec = mntTableRec;
-        this.maintTableAO = mntTableAO;
+        this.maintTableDao = mntTablDao;
         
         initComponents();        
         
@@ -73,14 +70,8 @@ public class MaintenanceTableInternalFrame extends InvAppMaintFrame{
         
     }
     
-    public void initListItems() {
-        
-        try {
-            mntTablePanel.initListItems(maintTableAO.getAllMaintRecords());
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
-                "SQLException retreiving records:\n" + e.getMessage(),StdFun.SYSTEM_TITLE ,JOptionPane.ERROR_MESSAGE) ;            
-        }
+    public void initListItems() {        
+        mntTablePanel.initListItems(maintTableDao.getAllRecords());
     }
 
     @Override
@@ -88,22 +79,15 @@ public class MaintenanceTableInternalFrame extends InvAppMaintFrame{
         
         if (mntTablePanel.getSelectedIndex() != 0) {
             mntTablePanel.fillRecord();
-            try {
-                maintTableAO.deleteRecord(maintTableRec.getId());
-                
-                initListItems();
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
-                    "SQLException deleting record:\n" + e.getMessage(),StdFun.SYSTEM_TITLE ,JOptionPane.ERROR_MESSAGE);                
-            }
+            maintTableDao.deleteRecord(maintTableRec.getId());                
+            initListItems();
         }
         
         cancelRecord();
     }
 
     @Override
-    public void newRecord() {
-        
+    public void newRecord() {        
         cancelRecord();
         
         setButtonEnabled(ActionToolBar.NEW_BUTTON, false);
@@ -151,25 +135,18 @@ public class MaintenanceTableInternalFrame extends InvAppMaintFrame{
     }
 
     @Override
-    public void saveRecord() {
-                
+    public void saveRecord() {                
         mntTablePanel.fillRecord();
         
-        if ((maintTableRec.getDsc() != null) && (!maintTableRec.getDsc().equals(""))) {
-            try {
-                if (maintTableRec.getId() == MaintenanceTableRecord.NEW_RECORD) {
-                    maintTableAO.saveRecord();
-                } else if (maintTableRec.getId() != MaintenanceTableRecord.CANCELLED_RECORD) { 
-                    maintTableAO.updateRecord(maintTableRec.getId());
-                }
+        if ((maintTableRec.getDescription() != null) && (!maintTableRec.getDescription().equals(""))) {
+            if (maintTableRec.getId() == MaintenanceTableRecord.NEW_RECORD) {
+                maintTableDao.saveRecord(maintTableRec);
+            } else if (maintTableRec.getId() != MaintenanceTableRecord.CANCELLED_RECORD) { 
+                maintTableDao.updateRecord(maintTableRec);
+            }
 
-                cancelRecord();            
-                initListItems();
-
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
-                    "SQLException saving record:\n" + e.getMessage(),StdFun.SYSTEM_TITLE ,JOptionPane.ERROR_MESSAGE);                
-            }        
+            cancelRecord();            
+            initListItems();
         }
     }
     

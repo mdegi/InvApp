@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 /**
@@ -28,8 +29,6 @@ public class HibernateUtil {
             return session;
         }
         catch (HibernateException ex) {
-            // Make sure you log the exception, as it might be swallowed
-            System.err.println("Initial SessionFactory creation failed." + ex);
             throw new ExceptionInInitializerError(ex);
         } catch (URISyntaxException ex) {
             Logger.getLogger(HibernateUtil.class.getName()).log(Level.SEVERE, null, ex);
@@ -37,6 +36,13 @@ public class HibernateUtil {
         }
     }
   
+    public Session getNewSession() {
+        return sessionFactory.openSession();
+    }
+    
+    public void getCurrentSession() {
+        sessionFactory.getCurrentSession();
+    }
     public static SessionFactory getSessionFactory() {
         return sessionFactory;
     }
