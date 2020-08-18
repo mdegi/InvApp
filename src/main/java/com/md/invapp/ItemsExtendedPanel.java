@@ -7,6 +7,7 @@
 package com.md.invapp;
 
 import com.md.invapp.data.entities.ItemCategoryEntity;
+import com.md.invapp.data.entities.ItemEntity;
 import com.md.invapp.data.entities.ItemGroupEntity;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class ItemsExtendedPanel extends InvAppMaintPanel {
      * @param itemCategoriesList
      * @param itemGroupsList
      * @param runTimeArgs */
-    public ItemsExtendedPanel(ItemRecord itemRecord,
+    public ItemsExtendedPanel(ItemEntity itemRecord,
             ArrayList<ItemCategoryEntity> itemCategoriesList, ArrayList<ItemGroupEntity> itemGroupsList, RuntimeArgs runTimeArgs) {
         this.itemRecord = itemRecord;
         this.runTimeArgs = runTimeArgs;
@@ -297,20 +298,20 @@ public class ItemsExtendedPanel extends InvAppMaintPanel {
             setSelectedIndex(combo, combosValues.get(combo));
         });
         
-        jTextField1.setText(itemRecord.getSerialNum());
+        jTextField1.setText(itemRecord.getBarCode());
         
         jFormattedTextField1.setText(new DecimalFormat(StdFun.DECIMAL_FORMAT)
             .format(itemRecord.getCostPrice()));
         jFormattedTextField2.setText(new DecimalFormat(StdFun.DECIMAL_FORMAT)
-            .format(itemRecord.getSellPrice()));
+            .format(itemRecord.getSellPrice_1()));
         jFormattedTextField3.setText(new DecimalFormat(StdFun.DECIMAL_FORMAT)
-            .format(itemRecord.getSellPrice() * 1.18));
+            .format(itemRecord.getSellPrice_1() * 1.18));
 
-        jFormattedTextField4.setToolTipText(itemRecord.getLastReceivedDate());
-        jFormattedTextField4.setToolTipText(String.valueOf(itemRecord.getLastReceivedQty()));
+//        jFormattedTextField4.setToolTipText(itemRecord.getLastReceivedDate());
+//        jFormattedTextField4.setToolTipText(String.valueOf(itemRecord.getLastReceivedQty()));
         
         jTextField2.setText(new DecimalFormat(StdFun.INT_FORMAT)
-            .format(itemRecord.getQtyAvailable()));
+            .format(itemRecord.getQtyInStock()));
 
 
         jTextArea1.setText(itemRecord.getComments());
@@ -318,15 +319,15 @@ public class ItemsExtendedPanel extends InvAppMaintPanel {
     
     @Override
     public void fillRecord() {
-        itemRecord.setSerialNum(jTextField1.getText());
+        itemRecord.setBarCode(jTextField1.getText());
         
         itemRecord.setCostPrice(StdFun.getFloatValue(jFormattedTextField1.getText()));
-        itemRecord.setSellPrice(StdFun.getFloatValue(jFormattedTextField2.getText()));
+        itemRecord.setSellPrice_1(StdFun.getFloatValue(jFormattedTextField2.getText()));
     
         try {
-            itemRecord.setQtyAvailable(Integer.parseInt(jTextField2.getText()));
+            itemRecord.setQtyInStock(Integer.parseInt(jTextField2.getText()));
         } catch (NumberFormatException e) {
-            itemRecord.setQtyAvailable(0);
+            itemRecord.setQtyInStock(0);
         }
 
         itemRecord.setComments(jTextArea1.getText());
@@ -424,7 +425,7 @@ public class ItemsExtendedPanel extends InvAppMaintPanel {
     public static final int CATEGORY_COMBO = 1;
     public static final int GROUP_COMBO = 2;
     
-    private final ItemRecord itemRecord;
+    private final ItemEntity itemRecord;
     private final RuntimeArgs runTimeArgs;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> categoryCombo;

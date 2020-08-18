@@ -78,7 +78,6 @@ public class ItemCategoryDao implements MaintenanceTableDao {
             dbSession.update(existingEntity);
             dbSession.getTransaction().commit();
         }
-
     }
 
     @Override

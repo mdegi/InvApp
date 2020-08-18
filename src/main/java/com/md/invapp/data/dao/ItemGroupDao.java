@@ -67,8 +67,7 @@ public class ItemGroupDao implements MaintenanceTableDao {
         }
         return groups;
     }
-
-
+    
     @Override
     public void updateRecord(MaintenanceTableRecord groupEntity) {
         try (Session dbSession = SESSION_FACTORY.openSession()) {
@@ -88,7 +87,5 @@ public class ItemGroupDao implements MaintenanceTableDao {
             dbSession.delete(existingEntity);
             dbSession.getTransaction().commit();
         }        
-    }
-    
-    
+    }    
 }

@@ -9,7 +9,6 @@
 
 package stdClasses;
 
-
 import java.text.DecimalFormat;
 
 import java.util.Vector;
@@ -43,8 +42,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.VetoableChangeListener;
 
 import java.util.ArrayList;
 import java.util.EventListener;
@@ -55,7 +52,6 @@ import javax.swing.JOptionPane;
 import javax.swing.AbstractAction;
 
 import javax.swing.KeyStroke;
-import javax.swing.event.AncestorListener;
 
 
 /**
@@ -64,9 +60,9 @@ import javax.swing.event.AncestorListener;
  */
 public class ScanWindowPanel extends JPanel {
    
-    private Vector<Vector> rowData;
+    private ArrayList<ArrayList> rowData;
 
-    private Vector headerData, colWidth;
+    private ArrayList headerData, colWidth;
     private Vector<String> markedRows;
 
     private String toolTipText, markedCellsToolTip;
@@ -125,16 +121,10 @@ public class ScanWindowPanel extends JPanel {
      * 
      * @param listDet Vector
      */
-    public ScanWindowPanel(Vector<Vector> listDet) {
-
+    public ScanWindowPanel(ArrayList<ArrayList> listDet) {
         initEntries(listDet);
-        
-//        if (rowData.size() > 0) { 
-            initComp();
-            //fillData(); // this was not remarked
-
-            setVisible(true);
-//        } else JOptionPane.showMessageDialog(null,"No Data Match Your Selection Criteria",StdFun.SYSTEM_TITLE,JOptionPane.OK_OPTION) ;
+        initComp();
+        setVisible(true);
     }
 
    /**
@@ -142,7 +132,6 @@ public class ScanWindowPanel extends JPanel {
     *
     */
     private void initComp() {
-        
         defaultModel = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int rowIndex, int colIndex) {
@@ -179,8 +168,6 @@ public class ScanWindowPanel extends JPanel {
         rsm = scanTable.getSelectionModel();
 
         df = new DecimalFormat(StdFun.DECIMAL_FORMAT);
-
-
     }
 
     public void setBackGroundColour(Color backGroundColor) {
@@ -188,7 +175,6 @@ public class ScanWindowPanel extends JPanel {
     }
     
     public void initSearchPanel(final Frame parentFrame, String title) {
-
         if (searchPanel == null) {
             initSearchComponents();
 
@@ -201,10 +187,8 @@ public class ScanWindowPanel extends JPanel {
             setNextButton(false);
             setPrevButton(false);
 
-
             outPanel.setVisible(false);
             outPanel.setVisible(true);
-
 
             scanTable.getActionMap().put("ctrl-f",
                 new AbstractAction() {
@@ -233,92 +217,86 @@ public class ScanWindowPanel extends JPanel {
                 }
             };
 
-
             searchField.getActionMap().put("escapeKey",escKeyAction);
             findButton.getActionMap().put("escapeKey",escKeyAction);
             nextButton.getActionMap().put("escapeKey",escKeyAction);
             prevButton.getActionMap().put("escapeKey",escKeyAction);
-
-
-            ActionListener searchButtonsListener = new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (e.getActionCommand().equals(FIND_BTN_CMD)) {
-
+            
+            ActionListener searchButtonsListener = (ActionEvent e) -> {
+                if (e.getActionCommand().equals(FIND_BTN_CMD)) {
+                    
+                    searchArrayPos = -1;
+                    
+                    searchedRowsPos = getSearchStrPos(searchField.getText(), 1, true);
+                    if (searchedRowsPos.size() > 0) {
+                        setSelectedIndex(searchedRowsPos.get(0));
+                        searchArrayPos++;
+                        
+                        if (!Scrolling.isVerticallyVisible(scanTable, getRowBounds(searchedRowsPos.get(0)))) {
+                            makeRowVisible(searchedRowsPos.get(0));
+                        }
+                        
+                        setPrevButton(false);
+                        if (searchedRowsPos.size() > 1) {
+                            setNextButton(true);
+                            setRequestFocusNextBtn();
+                        }
+                        searchFieldText = ("1 of " + searchedRowsPos.size());
+                        searchField.repaint();
+                    } else {
                         searchArrayPos = -1;
-
-                        searchedRowsPos = getSearchStrPos(searchField.getText(), 1, true);
-                        if (searchedRowsPos.size() > 0) {
-                            setSelectedIndex(searchedRowsPos.get(0));
-                            searchArrayPos++;
-
-                            if (!Scrolling.isVerticallyVisible(scanTable, getRowBounds(searchedRowsPos.get(0)))) {
-                                makeRowVisible(searchedRowsPos.get(0));
-                            }
-
-                            setPrevButton(false);
-                            if (searchedRowsPos.size() > 1) {
-                                setNextButton(true);
-                                setRequestFocusNextBtn();
-                            }
-                            searchFieldText = ("1 of " + searchedRowsPos.size());
-                            searchField.repaint();
-                        } else {
-                            searchArrayPos = -1;
-                            setPrevButton(false);
-                            setNextButton(false);
-                            searchFieldText = "";
-                            searchField.repaint();
-
-                            JOptionPane.showMessageDialog(parentFrame,
+                        setPrevButton(false);
+                        setNextButton(false);
+                        searchFieldText = "";
+                        searchField.repaint();
+                        
+                        JOptionPane.showMessageDialog(parentFrame,
                                 "No records found",
                                 StdFun.SYSTEM_TITLE,JOptionPane.INFORMATION_MESSAGE) ;
-                        }
                     }
-                    if (e.getActionCommand().equals(NEXT_BTN_CMD)) {
-                        setNextButton(true);
-                        setPrevButton(true);
-                        if (searchArrayPos < searchedRowsPos.size() -1) {
-                            searchArrayPos ++;
-                            setRequestFocusNextBtn();
-                        }
-
-                        if (searchArrayPos == searchedRowsPos.size() - 1) {
-                            setNextButton(false);
-                            setRequestFocusPrevBtn();
-                        }
-
-                        setSelectedIndex(searchedRowsPos.get(searchArrayPos));
-                        if (!Scrolling.isVerticallyVisible(scanTable, getRowBounds(searchedRowsPos.get(searchArrayPos)))) {
-                            makeRowVisible(searchedRowsPos.get(searchArrayPos));
-                        }
-
-                        searchFieldText = (searchArrayPos + 1) + " of " + searchedRowsPos.size();
-                        searchField.repaint();
-
+                }
+                if (e.getActionCommand().equals(NEXT_BTN_CMD)) {
+                    setNextButton(true);
+                    setPrevButton(true);
+                    if (searchArrayPos < searchedRowsPos.size() -1) {
+                        searchArrayPos ++;
+                        setRequestFocusNextBtn();
                     }
-                    if (e.getActionCommand().equals(PREV_BTN_CMD)) {
-
-                        setNextButton(true);
-                        setPrevButton(true);
-
-                        if (searchArrayPos > 0) {
-                            searchArrayPos --;
-                            setRequestFocusPrevBtn();
-                        }
-                        if (searchArrayPos == 0) {
-                            setPrevButton(false);
-                            setRequestFocusNextBtn();
-                        }
-
-                        setSelectedIndex(searchedRowsPos.get(searchArrayPos));
-                        if (!Scrolling.isVerticallyVisible(scanTable, getRowBounds(searchedRowsPos.get(searchArrayPos)))) {
-                            makeRowVisible(searchedRowsPos.get(searchArrayPos));
-                        }
-
-                        searchFieldText = (searchArrayPos + 1) + " of " + searchedRowsPos.size();
-                        searchField.repaint();
+                    
+                    if (searchArrayPos == searchedRowsPos.size() - 1) {
+                        setNextButton(false);
+                        setRequestFocusPrevBtn();
                     }
+                    
+                    setSelectedIndex(searchedRowsPos.get(searchArrayPos));
+                    if (!Scrolling.isVerticallyVisible(scanTable, getRowBounds(searchedRowsPos.get(searchArrayPos)))) {
+                        makeRowVisible(searchedRowsPos.get(searchArrayPos));
+                    }
+                    
+                    searchFieldText = (searchArrayPos + 1) + " of " + searchedRowsPos.size();
+                    searchField.repaint();
+                    
+                }
+                if (e.getActionCommand().equals(PREV_BTN_CMD)) {
+                    setNextButton(true);
+                    setPrevButton(true);
+                    
+                    if (searchArrayPos > 0) {
+                        searchArrayPos --;
+                        setRequestFocusPrevBtn();
+                    }
+                    if (searchArrayPos == 0) {
+                        setPrevButton(false);
+                        setRequestFocusNextBtn();
+                    }
+                    
+                    setSelectedIndex(searchedRowsPos.get(searchArrayPos));
+                    if (!Scrolling.isVerticallyVisible(scanTable, getRowBounds(searchedRowsPos.get(searchArrayPos)))) {
+                        makeRowVisible(searchedRowsPos.get(searchArrayPos));
+                    }
+                    
+                    searchFieldText = (searchArrayPos + 1) + " of " + searchedRowsPos.size();
+                    searchField.repaint();
                 }
             };
 
@@ -327,17 +305,13 @@ public class ScanWindowPanel extends JPanel {
             prevButton.addActionListener(searchButtonsListener);
 
             toolTipText += "Use <Ctrl-F> to search";
-            //mmmscanTable.setToolTipText(scanTable.getToolTipText() + "Use <Ctrl-F> to search");
         }  else {
             searchPanel.setVisible(false);
             searchPanel.setVisible(true);
-
         }
-
     }
 
     public Rectangle getRowBounds(int row) {
-
         Rectangle result = scanTable.getCellRect(row, -1, true);
         Insets i = scanTable.getInsets();
 
@@ -352,7 +326,6 @@ public class ScanWindowPanel extends JPanel {
     }
 
     private void exitSearch() {
-
         searchField.setText("");
         searchArrayPos = -1;
 
@@ -361,11 +334,9 @@ public class ScanWindowPanel extends JPanel {
         searchField.repaint();
         setPrevButton(false);
         setNextButton(false);
-
     }
 
     private void initSearchComponents() {
-
         searchPanel = new JPanel(new BorderLayout());
 
         final Font searchFont = new Font("Courier", Font.ITALIC ,10);
@@ -387,7 +358,6 @@ public class ScanWindowPanel extends JPanel {
                 searchField.requestFocus();
             }
         });
-
 
         searchField.getInputMap().put(KeyStroke.getKeyStroke(
                 KeyEvent.VK_ENTER, 0),
@@ -422,21 +392,17 @@ public class ScanWindowPanel extends JPanel {
                 KeyEvent.VK_ESCAPE, 0),
                 "escapeKey");
 
-
         buttonPanel.add(findButton);
         buttonPanel.add(nextButton);
         buttonPanel.add(prevButton);
 
         searchPanel.add(searchField, BorderLayout.CENTER);
         searchPanel.add(buttonPanel, BorderLayout.EAST);
-
     }
-
 
     public void setPrevButton(boolean enabled) {
         prevButton.setEnabled(enabled);
     }
-
 
     public void setNextButton(boolean enabled) {
         nextButton.setEnabled(enabled);
@@ -450,8 +416,6 @@ public class ScanWindowPanel extends JPanel {
         prevButton.requestFocusInWindow();
     }
 
-
-
     public void setMultiSelect() {
         scanTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     }
@@ -461,14 +425,12 @@ public class ScanWindowPanel extends JPanel {
      *
      */
     public void fillData() {
-        
         for (int x = 0 ; x < headerData.size(); x ++) {
-            defaultModel.addColumn((String)headerData.elementAt(x));
+            defaultModel.addColumn((String)headerData.get(x));
         }
         for (int x = 0 ; x < rowData.size() ; x++ ) {
-            defaultModel.addRow((Vector)rowData.elementAt(x));
+            defaultModel.addRow(rowData.get(x).toArray());
         }
-
     }
     
     public void reSort(int col){
@@ -552,17 +514,13 @@ public class ScanWindowPanel extends JPanel {
      * Return a Vector of objects representing the selected row
      * @return Vector v
      */
-    public Vector<Object> getSelectedEntry() {
-        
+    public Vector<Object> getSelectedEntry() {        
         Vector<Object> v = new Vector<Object>();
         
         for (int x = 0; x < scanTable.getColumnCount(); x++) {
             v.add(scanTable.getValueAt(scanTable.getSelectedRow(), x));
         }
-        
         return v;
-        
-        //return new Object[] {scanTable.getValueAt(getSelectedIndex(),0),scanTable.getValueAt(getSelectedIndex(),1)};
     }
 
     /**
@@ -592,7 +550,6 @@ public class ScanWindowPanel extends JPanel {
 
     
     public int getPreviousIndex() {
-
         if (scanTable.getSelectedRow() > 0) {
             return (getSelectedIndex() - 1);
         }
@@ -613,6 +570,7 @@ public class ScanWindowPanel extends JPanel {
     /**
      * Gets a String value of the requested column in the selected row
      *
+     * @param column
      * @return String value 
      */
     public String getSelectedValue(int column)  {        
@@ -629,7 +587,6 @@ public class ScanWindowPanel extends JPanel {
     }
     
     public String getNextCode() { 
-
         int currentRow = getSelectedIndex();
 
         if (currentRow  < (scanTable.getRowCount() - 1)) {
@@ -638,13 +595,10 @@ public class ScanWindowPanel extends JPanel {
         else {
             scanTable.setRowSelectionInterval(currentRow, currentRow);
         }
-        
         return getSelectedCode();
-
     }
     
     public String getPreviousCode() {
-
         int currentRow = getSelectedIndex();
 
         if (currentRow  > 0) {
@@ -655,7 +609,6 @@ public class ScanWindowPanel extends JPanel {
         }
         
         return getSelectedCode();
-       
     }
     
    /**
@@ -665,7 +618,6 @@ public class ScanWindowPanel extends JPanel {
     * @param colValues (Object[])
     */
     public void setRowDetailsValue(int rowIndex, Object[] colValues) {
-
         for (int colIndex = 0 ; colIndex < colValues.length; colIndex++) {
             if (colValues[colIndex] instanceof Float) {
                 sorter.setValueAt(df.format((Float)colValues[colIndex]),rowIndex,colIndex) ;
@@ -678,45 +630,39 @@ public class ScanWindowPanel extends JPanel {
    /**
     * Sets ScanWindowPanel Vectors values: rowData, headerData, colWidth. 
     * This method also converts a Float object to String in using DecimalFormat
- as defined in stdClasses.StdFun.DECIMAL_FORMAT and creates a Vector
- decimalCells to store the column numbers of those columns to indent in
- right when defining JTable scanTable
+    * as defined in stdClasses.StdFun.DECIMAL_FORMAT and creates a Vector
+    * decimalCells to store the column numbers of those columns to indent in
+    * right when defining JTable scanTable
     *
     * @param listDet Vector
     * @see stdClasses.StdFun.DA_DECIMAL_FORMAT
-    */
-    
-    public void initEntries(Vector<Vector> listDet) {
-
-        this.rowData = (Vector<Vector>)listDet.elementAt(0);
-        this.headerData = (Vector)listDet.elementAt(1);
-        this.colWidth = (Vector)listDet.elementAt(2);
+    */    
+    public void initEntries(ArrayList<ArrayList> listDet) {
+        this.rowData = (ArrayList<ArrayList>)listDet.get(0);
+        this.headerData = (ArrayList)listDet.get(1);
+        this.colWidth = (ArrayList)listDet.get(2);
         
-        Vector<Integer> decimalCells = new Vector<Integer>();
+        ArrayList<Integer> decimalCells = new ArrayList<>();
 
         int[] colsMaxWidth = new int[headerData.size()];
-        
-        Iterator<Vector> i = rowData.iterator();
-        while (i.hasNext()) {
-            Vector<Object> lineData = i.next();
 
-            for (int x = 0; x < lineData.size(); x ++) {
-
-                if (lineData.elementAt(x) != null) {
-                    if (colsMaxWidth[x] < lineData.elementAt(x).toString().length()) {
-                        colsMaxWidth[x] = lineData.elementAt(x).toString().length();
+        rowData.forEach(item -> {
+            ArrayList<Object> lineData = item;
+            int i = 0;
+            for (Object element : lineData) {
+                if (element != null) {
+                    if (colsMaxWidth[i] < element.toString().length()) {
+                        colsMaxWidth[i] = element.toString().length();
                     }
-
-                    if (lineData.elementAt(x) instanceof Float) {
-                        lineData.setElementAt(df.format((Float)lineData.elementAt(x)), x);
-                        decimalCells.addElement(new Integer(x));
-                    } 
-                } else {
-                    //colsMaxWidth[x] = 2;
                 }
+                if (element instanceof Double) {                    
+                    element = df.format((Float)element);
+                    decimalCells.add(i);
+                }
+                i++;                  
             }            
-        }
-
+        });
+                            
         if (decimalCells.size() > 0) { 
             try {
                 scanTable.setDefaultRenderer(Class.forName("java.lang.Object"),
@@ -748,7 +694,6 @@ public class ScanWindowPanel extends JPanel {
                             setToolTipText(toolTip);
                             return cell;
                         }
-
                 });
             } catch (ClassNotFoundException e) {  }
         }
@@ -769,7 +714,6 @@ public class ScanWindowPanel extends JPanel {
             scanTable.getColumnModel().getColumn(x).setPreferredWidth(tableColWidth);
         }
         //-----------------------------------------------------------------
-
     }
 
     /**
@@ -789,8 +733,6 @@ public class ScanWindowPanel extends JPanel {
 
     @Override
     public void setEnabled(boolean selectMode) {
-
-
         if (findButton != null) {
             findButton.setEnabled(selectMode);
             searchField.setEditable(selectMode);
@@ -799,7 +741,6 @@ public class ScanWindowPanel extends JPanel {
                 exitSearch();
                 scanTable.requestFocus();
             }
-
         }
         scanTable.setEnabled(selectMode);
    }
@@ -820,11 +761,8 @@ public class ScanWindowPanel extends JPanel {
      * 
      * @param code - String to be shown as selected
      * @param col - int column where value is to be matched
-     * 
-     * @return - -1 if given code does not exist or otherwise if succesful
      */
     public void setSelectedIndex(String code, int col) {
-
         for (int x = 0; x < scanTable.getRowCount(); x ++) {
             String entry = (String)scanTable.getValueAt(x, col);
 
@@ -837,12 +775,9 @@ public class ScanWindowPanel extends JPanel {
                 }
             }
         }
-
-
         if (!Scrolling.isVerticallyVisible(scanTable, getRowBounds(scanTable.getSelectedRow()))) {
             makeRowVisible(scanTable.getSelectedRow());
         }
-
     }
 
 
@@ -851,28 +786,22 @@ public class ScanWindowPanel extends JPanel {
      * given row position
      *
      * @param rowPos - row position
-     * @return - -1 if given code does not exist or otherwise if successful
      */
     public void setSelectedIndex(int rowPos) {
-
         scanTable.setRowSelectionInterval(rowPos, rowPos);
-
     }
 
     public void setSelectedIndex(ArrayList<Integer> rowsPos) {
-
         setMultiSelect();
         ListSelectionModel model = scanTable.getSelectionModel();
         model.clearSelection();
 
-        for (int sel: rowsPos) {
+        rowsPos.forEach((sel) -> {
             model.addSelectionInterval(sel, sel);
-        }
-
+        });
     }
 
     public int getRowCount() {
-
         return scanTable.getRowCount();
     }
 
@@ -887,51 +816,37 @@ public class ScanWindowPanel extends JPanel {
      * @return <code>ArrayList</code>
      */
     public ArrayList<Integer> getSearchStrPos(String searchStr, int col, boolean ignoreCase) {
-
-        ArrayList<Integer> rowsPos = new ArrayList<Integer>();
+        ArrayList<Integer> rowsPos = new ArrayList<>();
 
         for (int x = 0; x < scanTable.getRowCount(); x++) {
             if (ignoreCase) {
-                if (((String)scanTable.getValueAt(x, col)).toUpperCase().indexOf(searchStr.toUpperCase()) > -1) {
+                if (((String)scanTable.getValueAt(x, col)).toUpperCase().contains(searchStr.toUpperCase())) {
                     rowsPos.add(x);
                 }
             } else {
-                if (((String)scanTable.getValueAt(x, col)).indexOf(searchStr) > -1) {
+                if (((String)scanTable.getValueAt(x, col)).contains(searchStr)) {
                     rowsPos.add(x);
                 }
             }
         }
-
         return rowsPos;
-
     }
 
     public int getRowCount(String searchStr, int col) {
-
         int rowsFound = 0;
 
         for (int x = 0; x < scanTable.getRowCount(); x++) {
-
-            if (((String)scanTable.getValueAt(x, col)).indexOf(searchStr) > -1) {
+            if (((String)scanTable.getValueAt(x, col)).contains(searchStr)) {
                 rowsFound++;
             }
-
         }
-
         return rowsFound;
-
-
-
     }
 
     private boolean toBeMarked(String colValue) {
-
         boolean markCell = false;
 
-        for (Iterator<String> markIter = markedRows.iterator(); markIter.hasNext();) {
-
-            String iterValue = markIter.next();
-
+        for (String iterValue : markedRows) {
             if (iterValue.equals(colValue)) {
                 markCell = true;
                 break;
@@ -939,14 +854,12 @@ public class ScanWindowPanel extends JPanel {
         }
 
         return markCell;
-
     }
 
     private class CustomTableCellRenderer extends DefaultTableCellRenderer {
-
-        private Vector<Integer> decimalCols;
+        private ArrayList<Integer> decimalCols;
         
-        public CustomTableCellRenderer(Vector<Integer> decimalCols) {
+        public CustomTableCellRenderer(ArrayList<Integer> decimalCols) {
             this.decimalCols = decimalCols;            
         }
         
@@ -966,13 +879,12 @@ public class ScanWindowPanel extends JPanel {
                     toolTip = markedCellsToolTip;
                 } 
             }
-
             
             boolean numericCol = false;
             
             Iterator<Integer> cols = decimalCols.iterator();
             while (cols.hasNext()) {
-                if (cols.next().intValue() == column) {
+                if (cols.next() == column) {
                     numericCol = true;
                     break;
                 }
@@ -988,7 +900,6 @@ public class ScanWindowPanel extends JPanel {
             setToolTipText(toolTip);
             return cell;
         }
-
     }
-
+    
 }

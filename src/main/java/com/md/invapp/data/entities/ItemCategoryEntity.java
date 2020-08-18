@@ -39,6 +39,5 @@ public class ItemCategoryEntity extends MaintenanceTableRecord implements Serial
     
     @Column(name = "description", unique = true, nullable = false, length = 60)
     private String description;
-
     
 }

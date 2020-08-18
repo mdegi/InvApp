@@ -61,7 +61,6 @@ public abstract class InvAppMaintPanel extends JPanel{
             JTextField jTextField1, JTextField jTextField2) {
 
         if (scanListener != null) {
-
             if (jTextField1.isEditable()) {
                 jTextField1.setBackground(StdFun.LIGHT_YELLOW);
             } else {
@@ -95,7 +94,6 @@ public abstract class InvAppMaintPanel extends JPanel{
                 jTextField2.setToolTipText(null);
             }
         }
-
     }
 
     

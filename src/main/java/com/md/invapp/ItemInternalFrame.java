@@ -9,14 +9,12 @@ package com.md.invapp;
 
 import com.md.invapp.data.HibernateUtil;
 import com.md.invapp.data.dao.ItemCategoryDao;
+import com.md.invapp.data.dao.ItemDao;
 import com.md.invapp.data.dao.ItemGroupDao;
 import com.md.invapp.data.entities.ItemCategoryEntity;
+import com.md.invapp.data.entities.ItemEntity;
 import com.md.invapp.data.entities.ItemGroupEntity;
-import java.util.Vector;
-
 import java.awt.Dimension;
- 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Collectors;
@@ -39,8 +37,8 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
 
     private ItemPanel itemPanel = null;
     private final InvAppDBConn db = null;
-    private ItemAO itemAO = null;
-    private ItemRecord itemRecord;
+    private ItemDao itemDao = null;
+    private ItemEntity itemRecord;
     
     private ItemCategoryEntity itemCategoryRecord;
     private ItemCategoryDao itemCategoryDao;
@@ -83,29 +81,20 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
     }
     
         
-    private void initVars() {        
-    
+    private void initVars() {            
         combosValues = new HashMap<>();
         
-        itemRecord = new ItemRecord();
+        itemRecord = new ItemEntity();
         itemCategoryRecord = new ItemCategoryEntity();
         itemGroupRecord = new ItemGroupEntity();
         
         itemCategoryDao = new ItemCategoryDao(HibernateUtil.getSessionFactory());           
         itemGroupDao = new ItemGroupDao(HibernateUtil.getSessionFactory());           
-        
-        try {
-            itemAO = new ItemAO(runTimeArgs.getDbConn(), itemRecord);            
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
-                "Error initialising Access Object:\n" + e.getMessage(),
-                StdFun.SYSTEM_TITLE,JOptionPane.ERROR_MESSAGE) ;
-        }                
+        itemDao = new ItemDao(HibernateUtil.getSessionFactory());
     }
     
-    private void initComponents()  {
-        
-        Vector<Vector> listDet = null;
+    private void initComponents()  {        
+        ArrayList<ArrayList> listDet = null;        
         
         ArrayList<ItemCategoryEntity> categoriesList = null;
         ArrayList<ItemGroupEntity> groupsList = null;
@@ -120,12 +109,15 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
                     .stream()
                     .map(grp -> (ItemGroupEntity)grp)
                     .collect(Collectors.toCollection(ArrayList::new));
-
-            listDet = InvAppDBConn.getScanEntries(itemAO.fillListSQL(), runTimeArgs.getDbConn());
             
-        } catch (SQLException e) {
+            listDet = itemDao.getItemsDisplayList();                        
+        } catch (NoSuchFieldException e) {
             JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
-                "SQLException: init lists\n" + e.getMessage(),StdFun.SYSTEM_TITLE ,JOptionPane.ERROR_MESSAGE) ;
+                "NoSuchFieldException: init lists\n" + e.getMessage(),StdFun.SYSTEM_TITLE ,JOptionPane.ERROR_MESSAGE) ;
+        } catch (SecurityException e) {
+            JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
+                "SecurityException: init lists\n" + e.getMessage(),StdFun.SYSTEM_TITLE ,JOptionPane.ERROR_MESSAGE) ;
+            
         }
                
         itemPanel = new ItemPanel(itemRecord, listDet, categoriesList, groupsList, runTimeArgs);
@@ -143,7 +135,6 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
         
         addFramePanel(itemPanel);        
     }
-
    
   
     /**
@@ -152,18 +143,12 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
     
     @Override
     public void delRecord() {
-
         if (JOptionPane.showConfirmDialog(JOptionPane.getFrameForComponent(this),
                 "Confirm Deletion ?",
                 StdFun.SYSTEM_TITLE,JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                         
-            try {
-                itemAO.deleteRecord(itemRecord.getItemCode());
-                itemPanel.deleteSelectedEntry();
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
-                    "SQLException deleting record: item table\n" + e.getMessage(),StdFun.SYSTEM_TITLE ,JOptionPane.ERROR_MESSAGE);                
-            }            
+            itemDao.deleteRecord(itemRecord.getItemCode());
+            itemPanel.deleteSelectedEntry();
         }
         else {
             JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
@@ -173,7 +158,6 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
         
         newRec = false; 
         cancelRecord();
-       
     }
     
     /**
@@ -181,7 +165,6 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
      */
     @Override
     public void newRecord() {
-        
         cancelRecord();        
         
         setButtonEnabled(ActionToolBar.NEW_BUTTON, false);        
@@ -202,11 +185,10 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
      */
     @Override
     public void cancelRecord() {
-        
         itemPanel.clearForm();   
         itemPanel.addListListener(this);
 
-        itemRecord.initVars();
+        //itemRecord.initVars();
 
         setButtonEnabled(ActionToolBar.NEW_BUTTON, true);
         setButtonEnabled(ActionToolBar.EDIT_BUTTON, false);
@@ -221,7 +203,6 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
             processPopulateRec();
             itemPanel.requestFocus(ItemPanel.ITEM_TABLE);            
         }
-
     }
 
     /**
@@ -229,7 +210,6 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
      */
     @Override
     public void editRecord() {
-
         itemPanel.setEditable(true);       
 
         setButtonEnabled(ActionToolBar.NEW_BUTTON, false);
@@ -249,41 +229,33 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
 
     @Override
     public void saveRecord() {
-
         itemPanel.fillRecord();
         
         if (entriesComplete()) {
-            try {
-                if (newRec) {
-                    if ((itemRecord.getItemCode() != null ) && (!itemRecord.getItemCode().equals(""))) {
-                        itemAO.saveRecord();
-                        itemAO.fillRecord(itemRecord.getItemCode());
-                        itemPanel.addEntry(new Object[]
-                            {itemRecord.getItemCode(),itemRecord.getDsc()});                        
-                        cancelRecord();
-                    }
+            if (newRec) {
+                if ((itemRecord.getItemCode() != null ) && (!itemRecord.getItemCode().equals(""))) {
+                    itemDao.saveRecord(itemRecord);
+                    
+                    itemRecord = itemDao.getItem(itemRecord.getItemCode());
+                    itemPanel.addEntry(new Object[]
+                        {itemRecord.getItemCode(),itemRecord.getDescription()});                        
+                    cancelRecord();
                 }
-                else { 
-                    itemAO.updateRecord(itemRecord.getItemCode());
-                    itemAO.fillRecord(itemRecord.getItemCode());
-                    itemPanel.updateEntry(new Object[]
-                            {itemRecord.getItemCode(),itemRecord.getDsc()});
-                    cancelRecord(); 
-                }
-                
-                newRec = true;
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
-                    "SQLException saving record: item table\n" + e.getMessage(),StdFun.SYSTEM_TITLE ,JOptionPane.ERROR_MESSAGE);                
-            } 
+            }
+            else { 
+                itemDao.updateRecord(itemRecord);
+                itemRecord = itemDao.getItem(itemRecord.getItemCode());
+                itemPanel.updateEntry(new Object[]
+                        {itemRecord.getItemCode(),itemRecord.getDescription()});
+                cancelRecord(); 
+            }
+            newRec = true;
         }    
     }
     
     private boolean entriesComplete() {
         boolean entriesComplete = true;
-        
-        StringBuilder errorList = new StringBuilder("");
-        
+                
         boolean validEnt = true;
         if (validEnt) {
             itemCategoryRecord = itemCategoryDao.getCategory((String)itemPanel.getSelectedItem(ItemPanel.CATEGORY_COMBO));
@@ -298,33 +270,26 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
         return entriesComplete;
     }
     
-    public void initListItems() {    
-        
+    public void initListItems() {           
         try {
-            itemPanel.initScanPanel(InvAppDBConn.getScanEntries(itemAO.fillListSQL(), runTimeArgs.getDbConn()));        
-        } catch (SQLException e) {
+            itemPanel.initScanPanel(itemDao.getItemsDisplayList());
+        } catch (NoSuchFieldException e) {
             JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
-                "SQLException retreiving records: item table\n" + e.getMessage(),StdFun.SYSTEM_TITLE ,JOptionPane.ERROR_MESSAGE) ;            
+                "NoSuchFieldException retreiving records: item table\n" + e.getMessage(),StdFun.SYSTEM_TITLE ,JOptionPane.ERROR_MESSAGE) ;            
         }        
-  }
+    }
 
-    public void processListSelection(int selectedIndex, String itemCode) {     
-        
-        try {
-            itemAO.fillRecord(itemCode);
-            
-            itemCategoryRecord = itemCategoryDao.getCategory(itemRecord.getCategoryId());
-            itemGroupRecord = itemGroupDao.getGroup(itemRecord.getGroupId());
-            combosValues.clear();
-            
-            combosValues.put(ItemPanel.CATEGORY_COMBO, itemCategoryRecord.getDescription());
-            combosValues.put(ItemPanel.GROUP_COMBO, itemGroupRecord.getDescription());
-            
-            itemPanel.fillPanel(combosValues);
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
-                "SQLException processing selection\n" + e.getMessage() ,StdFun.SYSTEM_TITLE ,JOptionPane.ERROR_MESSAGE);                                                        
-        }
+    public void processListSelection(int selectedIndex, String itemCode) {             
+        itemRecord = itemDao.getItem(itemCode);
+
+        itemCategoryRecord = itemCategoryDao.getCategory(itemRecord.getCategoryId());
+        itemGroupRecord = itemGroupDao.getGroup(itemRecord.getGroupId());
+        combosValues.clear();
+
+        combosValues.put(ItemPanel.CATEGORY_COMBO, itemCategoryRecord.getDescription());
+        combosValues.put(ItemPanel.GROUP_COMBO, itemGroupRecord.getDescription());
+
+        itemPanel.fillPanel(combosValues);
 
         if ((selectedIndex == -1) || (itemCode.equals(""))) {
             setButtonEnabled(ActionToolBar.NEW_BUTTON, true);
@@ -338,14 +303,12 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
             setButtonEnabled(ActionToolBar.DELETE_BUTTON, true);
             setButtonEnabled(ActionToolBar.SAVE_BUTTON, false);
             setButtonEnabled(ActionToolBar.CANCEL_BUTTON, false);
-        }
-        
+        }    
     }
 
     
     @Override
     public void valueChanged(ListSelectionEvent e) {
-
         if (e.getValueIsAdjusting()) { // if multiple values selected
             return;
         }
@@ -357,23 +320,16 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
     }
 
     private void processPopulateRec() {
+        itemRecord = itemDao.getItem(itemPanel.getSelectedItem(ItemPanel.ITEM_TABLE));
+        itemCategoryRecord = itemCategoryDao.getCategory(itemRecord.getCategoryId());
+        itemGroupRecord = itemGroupDao.getGroup(itemRecord.getGroupId());
 
-        try {
-            itemAO.fillRecord(itemPanel.getSelectedItem(ItemPanel.ITEM_TABLE));            
-            itemCategoryRecord = itemCategoryDao.getCategory(itemRecord.getCategoryId());
-            itemGroupRecord = itemGroupDao.getGroup(itemRecord.getGroupId());
-            
-            combosValues.clear();
+        combosValues.clear();
 
-            combosValues.put(ItemPanel.CATEGORY_COMBO, itemCategoryRecord.getDescription());
-            combosValues.put(ItemPanel.GROUP_COMBO, itemGroupRecord.getDescription());
+        combosValues.put(ItemPanel.CATEGORY_COMBO, itemCategoryRecord.getDescription());
+        combosValues.put(ItemPanel.GROUP_COMBO, itemGroupRecord.getDescription());
 
-
-            itemPanel.fillPanel(combosValues);
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(JOptionPane.getFrameForComponent(this),
-                "SQLException processing selection\n" + ex.getMessage() ,StdFun.SYSTEM_TITLE ,JOptionPane.ERROR_MESSAGE);                                                        
-        } 
+        itemPanel.fillPanel(combosValues);
 
         if ((itemPanel.getSelectedIndex(ItemPanel.ITEM_TABLE) == -1) 
                 || (itemPanel.getSelectedItem(ItemPanel.ITEM_TABLE) == null)

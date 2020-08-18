@@ -352,7 +352,7 @@ public class InvApp extends javax.swing.JFrame {
     }    
   
     private void initAppConfig() {
-        runTimeArgs = new RuntimeArgs();
+        runTimeArgs = RuntimeArgs.getRunTimeArgsInstance();
         
         URL res = getClass().getClassLoader().getResource("abc.txt");
         

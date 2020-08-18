@@ -36,13 +36,6 @@ public class HibernateUtil {
         }
     }
   
-    public Session getNewSession() {
-        return sessionFactory.openSession();
-    }
-    
-    public void getCurrentSession() {
-        sessionFactory.getCurrentSession();
-    }
     public static SessionFactory getSessionFactory() {
         return sessionFactory;
     }

@@ -7,12 +7,12 @@
 package com.md.invapp;
 
 import com.md.invapp.data.entities.ItemCategoryEntity;
+import com.md.invapp.data.entities.ItemEntity;
 import com.md.invapp.data.entities.ItemGroupEntity;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionListener;
 import stdClasses.ScanWindowPanel;
@@ -33,8 +33,7 @@ public class ItemPanel extends InvAppMaintPanel {
      * @param itemCategoriesList
      * @param itemGroupsList
      */
-
-    public ItemPanel(ItemRecord itemRecord, Vector<Vector> listDet, 
+    public ItemPanel(ItemEntity itemRecord, ArrayList<ArrayList> listDet, 
             ArrayList<ItemCategoryEntity> itemCategoriesList, ArrayList<ItemGroupEntity> itemGroupsList, RuntimeArgs runTimeArgs) {
 
         initComponents();
@@ -48,7 +47,6 @@ public class ItemPanel extends InvAppMaintPanel {
     }
     
     private void initPanels() {
-
         setLayout(new BorderLayout());
         
         add(scanWindowPanel,BorderLayout.WEST);
@@ -56,11 +54,9 @@ public class ItemPanel extends InvAppMaintPanel {
         add(extendedPanel,BorderLayout.CENTER);
         
         repaint();
-
     }
     
-    public void initScanPanel(Vector<Vector> listDet) {
-
+    public void initScanPanel(ArrayList<ArrayList> listDet) {
         clearForm();
         
         setSelectedIndex(CATEGORY_COMBO, 0);
@@ -69,7 +65,7 @@ public class ItemPanel extends InvAppMaintPanel {
         scanWindowPanel.deleteAllEntries();
         scanWindowPanel.removeAllCols();
         scanWindowPanel.initEntries(listDet);
-        scanWindowPanel.initSearchPanel(JOptionPane.getFrameForComponent(this), "Search Employee");
+        scanWindowPanel.initSearchPanel(JOptionPane.getFrameForComponent(this), "Search Item");
     }
 
     public void requestFocus(int table) {
@@ -149,7 +145,6 @@ public class ItemPanel extends InvAppMaintPanel {
             
     @Override
     public void setStatusBar(StatusBar statusBar) {
-
         basicPanel.setStatusBar(statusBar);
         extendedPanel.setStatusBar(statusBar);
         
@@ -203,7 +198,6 @@ public class ItemPanel extends InvAppMaintPanel {
 
 
     public void setSelectedIndex(int combo, String value) {
-
         switch (combo) {
             case CATEGORY_COMBO:
                 extendedPanel.setSelectedIndex(CATEGORY_COMBO, value);

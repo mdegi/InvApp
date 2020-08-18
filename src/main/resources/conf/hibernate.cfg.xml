@@ -12,7 +12,8 @@
         <property name="show_sql">true</property>
         <property name="hbm2ddl.auto">validate</property>
         <mapping class="com.md.invapp.data.entities.InvAppUserEntity"></mapping>
-		<mapping class="com.md.invapp.data.entities.ItemCategoryEntity"></mapping>
-		<mapping class="com.md.invapp.data.entities.ItemGroupEntity"></mapping>
+        <mapping class="com.md.invapp.data.entities.ItemCategoryEntity"></mapping>
+        <mapping class="com.md.invapp.data.entities.ItemGroupEntity"></mapping>
+        <mapping class="com.md.invapp.data.entities.ItemEntity"></mapping>
     </session-factory>
 </hibernate-configuration>

@@ -26,7 +26,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-//@org.hibernate.annotations.Entity(optimisticLock = OptimisticLockType.ALL)
 @Table(name = "invappuser", uniqueConstraints = {
         @UniqueConstraint(columnNames = "ID")        
 })

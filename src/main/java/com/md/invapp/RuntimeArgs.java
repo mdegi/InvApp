@@ -14,7 +14,6 @@ import java.util.Properties;
 import stdClasses.StdFun;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -23,7 +22,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@NoArgsConstructor
 public class RuntimeArgs {
 
     public static final String LABEL = "runtimeArgs";
@@ -36,6 +34,17 @@ public class RuntimeArgs {
                     
     private int openFrameCount;
     
+    private static RuntimeArgs runtimeArgs;
+    
+    private RuntimeArgs() {  }
+
+    public static synchronized RuntimeArgs getRunTimeArgsInstance() {
+        if (runtimeArgs == null) {
+            runtimeArgs = new RuntimeArgs();
+        } 
+        return runtimeArgs;
+    }
+
     public Connection getDbConn() {
         return invAppDbConn.getConnection();
     }

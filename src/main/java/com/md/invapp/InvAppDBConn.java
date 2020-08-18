@@ -136,9 +136,9 @@ public class InvAppDBConn {
      * lock on this selected table(s).<br/>
      * The <code>HashMap</code> key must represent either the table name or the
      * alias for that table.While the value consists of a <code>String</code>
- array where position [0] of the array should contain the table name
- (if the key is an alias) or blank if the key is the table name. Position [1]
- of the array should contain either a <code>READ</code> lock mode or <code>WRITE</code>
+     * array where position [0] of the array should contain the table name
+     * (if the key is an alias) or blank if the key is the table name. Position [1]
+     * of the array should contain either a <code>READ</code> lock mode or <code>WRITE</code>
      * lock. The lock types can be any value from constants <code>public static final String READ_LOCK</code>
      * or <code>public static final String WRITE_LOCK</code>
      * <p>
@@ -153,7 +153,6 @@ public class InvAppDBConn {
      */
 
     public void lockTables(HashMap<String,String[]> tables) throws SQLException {
-
         StringBuilder sqlStr = new StringBuilder("LOCK TABLES ");
 
         int currentPos = 0;

@@ -6,6 +6,7 @@
 
 package com.md.invapp;
 
+import com.md.invapp.data.entities.ItemEntity;
 import java.awt.Color;
 import java.awt.Graphics;
 
@@ -24,7 +25,7 @@ public class ItemsBasicPanel extends InvAppMaintPanel {
     
     /** Creates new form ItemsBasicPanel
      * @param itemRecord */
-    public ItemsBasicPanel(ItemRecord itemRecord) {
+    public ItemsBasicPanel(ItemEntity itemRecord) {
         this.itemRecord = itemRecord;
         initComponents();
     }
@@ -149,7 +150,7 @@ public class ItemsBasicPanel extends InvAppMaintPanel {
 
     private void jTextField2FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextField2FocusLost
         if (jTextField2.isEditable()) { 
-            itemRecord.setDsc(jTextField2.getText());
+            itemRecord.setDescription(jTextField2.getText());
         }
     }//GEN-LAST:event_jTextField2FocusLost
 
@@ -161,7 +162,7 @@ public class ItemsBasicPanel extends InvAppMaintPanel {
             if (evt.getClickCount() ==2 ) {
                 if (scanItemtListener != null) {
                     itemRecord.setItemCode(jTextField1.getText());
-                    itemRecord.setDsc(jTextField2.getText());
+                    itemRecord.setDescription(jTextField2.getText());
                     scanItemtListener.initScanList();
                 }
             }
@@ -171,13 +172,13 @@ public class ItemsBasicPanel extends InvAppMaintPanel {
         
     public void fillPanel(){
         jTextField1.setText(itemRecord.getItemCode()) ;
-        jTextField2.setText(itemRecord.getDsc()) ;
+        jTextField2.setText(itemRecord.getDescription()) ;
     }
     
     @Override
     public void fillRecord() {
         itemRecord.setItemCode(jTextField1.getText());
-        itemRecord.setDsc(jTextField2.getText());
+        itemRecord.setDescription(jTextField2.getText());
     }
 
     @Override
@@ -281,7 +282,7 @@ public class ItemsBasicPanel extends InvAppMaintPanel {
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables
-    private final ItemRecord itemRecord;
+    private final ItemEntity itemRecord;
     private ScanItemListener scanItemtListener;
 
 
