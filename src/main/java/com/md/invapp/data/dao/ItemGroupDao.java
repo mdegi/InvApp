@@ -11,6 +11,7 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 /**
@@ -63,6 +64,7 @@ public class ItemGroupDao implements MaintenanceTableDao {
         List groups;
         try (Session dbSession = SESSION_FACTORY.openSession()) {
             Criteria criteria = dbSession.createCriteria(ItemGroupEntity.class);
+            criteria.addOrder(Order.asc("description"));
             groups = criteria.list();
         }
         return groups;
