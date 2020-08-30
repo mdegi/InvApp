@@ -21,6 +21,8 @@ import org.hibernate.criterion.Restrictions;
 public class ItemCategoryDao implements MaintenanceTableDao {
     private final SessionFactory SESSION_FACTORY;    
     
+    private final String DESCRIPTION_COLUMN = "description";
+    
     public ItemCategoryDao(SessionFactory sessionFactory) {
         this.SESSION_FACTORY = sessionFactory;
     }
@@ -29,7 +31,7 @@ public class ItemCategoryDao implements MaintenanceTableDao {
         ItemCategoryEntity categoryEntity;
         try (Session dbSession = SESSION_FACTORY.openSession()) {
             Criteria criteria = dbSession.createCriteria(ItemCategoryEntity.class);
-            criteria.add(Restrictions.eq("description", categoryCode));
+            criteria.add(Restrictions.eq(DESCRIPTION_COLUMN, categoryCode));
             categoryEntity = (ItemCategoryEntity)criteria.uniqueResult();
         }
         return categoryEntity;        
@@ -64,7 +66,7 @@ public class ItemCategoryDao implements MaintenanceTableDao {
         List categories;
         try (Session dbSession = SESSION_FACTORY.openSession()) {
             Criteria criteria = dbSession.createCriteria(ItemCategoryEntity.class);
-            criteria.addOrder(Order.asc("description"));
+            criteria.addOrder(Order.asc(DESCRIPTION_COLUMN));
             categories = criteria.list();
         }
         return categories;

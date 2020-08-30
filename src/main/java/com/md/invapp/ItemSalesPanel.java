@@ -6,6 +6,7 @@
 
 package com.md.invapp;
 
+import com.md.invapp.data.entities.InvAppEntitiy;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.Vector;
@@ -107,6 +108,10 @@ public class ItemSalesPanel extends InvAppMaintPanel {
 
     
     @Override
+    public void populatedEntity(InvAppEntitiy invAppEntity) {        
+    }
+
+    
     public void fillRecord() {        
         headerPanel.fillRecord();
         footerPanel.fillRecord();

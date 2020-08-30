@@ -6,6 +6,7 @@
 
 package com.md.invapp;
 
+import com.md.invapp.data.entities.InvAppEntitiy;
 import com.md.invapp.data.entities.ItemCategoryEntity;
 import com.md.invapp.data.entities.ItemEntity;
 import com.md.invapp.data.entities.ItemGroupEntity;
@@ -94,7 +95,7 @@ public class ItemsExtendedPanel extends InvAppMaintPanel {
 
         jLabel3.setText("Group:");
 
-        jLabel4.setText("Serial Number:");
+        jLabel4.setText("Bar Code:");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -292,11 +293,12 @@ public class ItemsExtendedPanel extends InvAppMaintPanel {
                     ( 1 + (runTimeArgs.getInvAppConfig().getVatRate() / 100))));
     }//GEN-LAST:event_jFormattedTextField2FocusLost
 
-    public void fillPanel(HashMap<Integer,String> combosValues) {
+    public void fillPanel(HashMap<Integer,String> combosValues, ItemEntity itemRecord) {
         
         combosValues.keySet().forEach((combo) -> {            
             setSelectedIndex(combo, combosValues.get(combo));
         });
+        
         
         jTextField1.setText(itemRecord.getBarCode());
         
@@ -316,21 +318,23 @@ public class ItemsExtendedPanel extends InvAppMaintPanel {
 
         jTextArea1.setText(itemRecord.getComments());
     }
-    
-    @Override
-    public void fillRecord() {
-        itemRecord.setBarCode(jTextField1.getText());
+
+    @Override    
+    public void populatedEntity(InvAppEntitiy invAppEntity) {
+        ItemEntity itemEntity = (ItemEntity)invAppEntity;
         
-        itemRecord.setCostPrice(StdFun.getFloatValue(jFormattedTextField1.getText()));
-        itemRecord.setSellPrice_1(StdFun.getFloatValue(jFormattedTextField2.getText()));
+        itemEntity.setBarCode(jTextField1.getText());
+        
+        itemEntity.setCostPrice(StdFun.getFloatValue(jFormattedTextField1.getText()));
+        itemEntity.setSellPrice_1(StdFun.getFloatValue(jFormattedTextField2.getText()));
     
         try {
-            itemRecord.setQtyInStock(Integer.parseInt(jTextField2.getText()));
+            itemEntity.setQtyInStock(Integer.parseInt(jTextField2.getText()));
         } catch (NumberFormatException e) {
-            itemRecord.setQtyInStock(0);
+            itemEntity.setQtyInStock(0);
         }
 
-        itemRecord.setComments(jTextArea1.getText());
+        itemEntity.setComments(jTextArea1.getText());   
     }
     
     
@@ -404,9 +408,13 @@ public class ItemsExtendedPanel extends InvAppMaintPanel {
         switch (combo) {
             case CATEGORY_COMBO:
                 categoryCombo.setSelectedItem(value);
+                categoryCombo.invalidate();
+                categoryCombo.repaint();
                 break;
             case GROUP_COMBO:
                 groupCombo.setSelectedItem(value);
+                categoryCombo.invalidate();
+                categoryCombo.repaint();
                 break;
         }        
     }

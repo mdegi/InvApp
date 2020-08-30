@@ -6,6 +6,7 @@
 
 package com.md.invapp;
 
+import com.md.invapp.data.entities.InvAppEntitiy;
 import com.md.invapp.data.entities.ItemEntity;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -170,17 +171,19 @@ public class ItemsBasicPanel extends InvAppMaintPanel {
 
 }//GEN-LAST:event_scanTableMouseClicked
         
-    public void fillPanel(){
+    public void fillPanel(ItemEntity itemRecord){
         jTextField1.setText(itemRecord.getItemCode()) ;
         jTextField2.setText(itemRecord.getDescription()) ;
     }
     
     @Override
-    public void fillRecord() {
-        itemRecord.setItemCode(jTextField1.getText());
-        itemRecord.setDescription(jTextField2.getText());
+    public void populatedEntity(InvAppEntitiy invAppEntity) {
+        ItemEntity itemEntity = (ItemEntity)invAppEntity;
+        itemEntity.setItemCode(jTextField1.getText());
+        itemEntity.setDescription(jTextField2.getText());
     }
-
+    
+        
     @Override
     public void clearForm() {
         jTextField1.setText(null);

@@ -30,7 +30,7 @@ import lombok.Setter;
 @Table(name = "itemGroup", uniqueConstraints = {
         @UniqueConstraint(columnNames = "ID")        
 })
-public class ItemGroupEntity extends MaintenanceTableRecord implements Serializable {
+public class ItemGroupEntity extends MaintenanceTableRecord implements InvAppEntitiy, Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

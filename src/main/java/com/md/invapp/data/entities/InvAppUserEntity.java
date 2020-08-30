@@ -29,7 +29,7 @@ import lombok.Setter;
 @Table(name = "invappuser", uniqueConstraints = {
         @UniqueConstraint(columnNames = "ID")        
 })
-public class InvAppUserEntity implements Serializable {
+public class InvAppUserEntity implements InvAppEntitiy, Serializable {
     
     private static final long serialVersionUID = -1798070786993154676L;
      

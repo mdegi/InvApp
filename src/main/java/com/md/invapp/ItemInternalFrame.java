@@ -229,7 +229,7 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
 
     @Override
     public void saveRecord() {
-        itemPanel.fillRecord();
+        itemPanel.populatedEntity(itemRecord);
         
         if (entriesComplete()) {
             if (newRec) {
@@ -289,7 +289,7 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
         combosValues.put(ItemPanel.CATEGORY_COMBO, itemCategoryRecord.getDescription());
         combosValues.put(ItemPanel.GROUP_COMBO, itemGroupRecord.getDescription());
 
-        itemPanel.fillPanel(combosValues);
+        itemPanel.fillPanel(combosValues, itemRecord);
 
         if ((selectedIndex == -1) || (itemCode.equals(""))) {
             setButtonEnabled(ActionToolBar.NEW_BUTTON, true);
@@ -329,7 +329,7 @@ public class ItemInternalFrame extends InvAppMaintFrame implements ListSelection
         combosValues.put(ItemPanel.CATEGORY_COMBO, itemCategoryRecord.getDescription());
         combosValues.put(ItemPanel.GROUP_COMBO, itemGroupRecord.getDescription());
 
-        itemPanel.fillPanel(combosValues);
+        itemPanel.fillPanel(combosValues, itemRecord);
 
         if ((itemPanel.getSelectedIndex(ItemPanel.ITEM_TABLE) == -1) 
                 || (itemPanel.getSelectedItem(ItemPanel.ITEM_TABLE) == null)

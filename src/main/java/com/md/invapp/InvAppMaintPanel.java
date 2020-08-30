@@ -4,6 +4,7 @@
  */
 package com.md.invapp;
 
+import com.md.invapp.data.entities.InvAppEntitiy;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import stdClasses.StatusBar;
@@ -17,7 +18,7 @@ public abstract class InvAppMaintPanel extends JPanel{
     
     private StatusBar statusBar;
 
-    public abstract void fillRecord();
+    public abstract void populatedEntity(InvAppEntitiy invAppEntity);
     
     public abstract void clearForm();
     

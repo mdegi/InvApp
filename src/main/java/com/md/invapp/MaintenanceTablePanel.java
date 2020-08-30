@@ -4,6 +4,7 @@
  */
 package com.md.invapp;
 
+import com.md.invapp.data.entities.InvAppEntitiy;
 import java.awt.event.ActionListener;
 import java.util.List;
 
@@ -32,6 +33,11 @@ public class MaintenanceTablePanel extends InvAppMaintPanel {
     }
 
     @Override
+    public void populatedEntity(InvAppEntitiy invAppEntity) {
+        
+    }
+    
+
     public void fillRecord() {
 
         if (jComboBox1.getSelectedIndex() !=0 ) {

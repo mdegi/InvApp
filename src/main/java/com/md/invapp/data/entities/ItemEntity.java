@@ -27,7 +27,7 @@ import lombok.Setter;
 @Table(name = "item", uniqueConstraints = {
         @UniqueConstraint(columnNames = "ITEMCODE")        
 })
-public class ItemEntity implements Serializable {
+public class ItemEntity implements InvAppEntitiy, Serializable {
     
     private static final long serialVersionUID = -1798070786993154676L;
     
@@ -68,5 +68,5 @@ public class ItemEntity implements Serializable {
     public final static int NEW_RECORD = 0;
     
     public final static int CANCELLED_RECORD = -1;
-                    
+                        
 }

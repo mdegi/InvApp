@@ -6,6 +6,7 @@
 
 package com.md.invapp;
 
+import com.md.invapp.data.entities.InvAppEntitiy;
 import com.md.invapp.data.entities.ItemCategoryEntity;
 import com.md.invapp.data.entities.ItemEntity;
 import com.md.invapp.data.entities.ItemGroupEntity;
@@ -112,15 +113,16 @@ public class ItemPanel extends InvAppMaintPanel {
         scanWindowPanel.addListSelectionListener(listListener);        
     }
 
-    public void fillPanel(HashMap<Integer,String> combosValues) {
-        basicPanel.fillPanel();
-        extendedPanel.fillPanel(combosValues);
+    public void fillPanel(HashMap<Integer,String> combosValues, ItemEntity itemRecord) {
+        basicPanel.fillPanel(itemRecord);
+        extendedPanel.fillPanel(combosValues, itemRecord);
     }
     
     @Override
-    public void fillRecord() {
-        basicPanel.fillRecord();
-        extendedPanel.fillRecord();
+    public void populatedEntity(InvAppEntitiy invAppEntity) {
+        ItemEntity itemEntity = (ItemEntity)invAppEntity;
+        basicPanel.populatedEntity(itemEntity);
+        extendedPanel.populatedEntity(itemEntity);        
     }
     
     @Override
