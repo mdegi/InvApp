@@ -27,10 +27,12 @@ public class InvAppDBConn {
 
     public static final String READ_LOCK = "READ";
     public static final String WRITE_LOCK = "WRITE";
-    
+
+    private static InvAppDBConn invAppDBConn;
+   
     private String dbPwd;
 
-    public InvAppDBConn(String dbServer, int dbPort, String pwd) throws ClassNotFoundException, SQLException{
+    private InvAppDBConn(String dbServer, int dbPort, String pwd) throws ClassNotFoundException, SQLException{
         StringBuilder url = new StringBuilder("jdbc:mysql://");
         url.append(dbServer).append(":").append(dbPort).append("/").append(DB_NAME);
         url.append("?zeroDateTimeBehavior=convertToNull");
@@ -42,9 +44,17 @@ public class InvAppDBConn {
                     DB_USER, pwd);
             
             dbPwd = pwd;
-        }    
+        }   
+        invAppDBConn = this;
     }
 
+    public static synchronized InvAppDBConn getInvAppDBConnInstance(String dbServer, int dbPort, String pwd) throws ClassNotFoundException, SQLException {        
+        if (invAppDBConn != null) {
+            return invAppDBConn;
+        } else {
+            return new InvAppDBConn(dbServer, dbPort, pwd);
+        }        
+    }
 
     public Connection getConnection() {  
         return conn;        

@@ -194,7 +194,7 @@ public class InvApp extends javax.swing.JFrame {
         if ((jTextField1.getText() != null) && (!jTextField1.getText().equals(""))) {  
             InvAppDBConn iaDBConn;                        
             try {
-                iaDBConn = new InvAppDBConn(dbServer, dbPort, dbPwd);
+                iaDBConn = InvAppDBConn.getInvAppDBConnInstance(dbServer, dbPort, dbPwd);
                 runTimeArgs.setInvAppDbConn(iaDBConn);
                 userRec = userDao.getUser(jTextField1.getText());
                 
@@ -353,8 +353,6 @@ public class InvApp extends javax.swing.JFrame {
   
     private void initAppConfig() {
         runTimeArgs = RuntimeArgs.getRunTimeArgsInstance();
-        
-        URL res = getClass().getClassLoader().getResource("abc.txt");
         
         session = HibernateUtil.getSessionFactory().openSession();
         userDao = new InvAppUserDao(session);
